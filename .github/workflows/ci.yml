@@ -26,8 +26,8 @@ jobs:
           node-version: '20'
 
       - uses: gitleaks/gitleaks-action@v2
-        with:
-          config-path: .gitleaksignore  # opcional, si existe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: npm ci
         run: npm ci
