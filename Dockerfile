@@ -1,0 +1,26 @@
+# Build stage
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+ARG NEXT_PUBLIC_BUILD_ID
+ARG BUILD_TIME
+ENV NEXT_PUBLIC_BUILD_ID=${NEXT_PUBLIC_BUILD_ID}
+ENV BUILD_TIME=${BUILD_TIME}
+RUN npm run build
+
+# Runtime stage
+FROM node:20-alpine
+WORKDIR /app
+RUN apk add --no-cache curl
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+
+EXPOSE 3000
+CMD ["npm", "start"]
