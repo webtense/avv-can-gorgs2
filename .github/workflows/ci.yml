@@ -49,7 +49,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           build-args: |
             NEXT_PUBLIC_BUILD_ID=${{ github.ref_name }}-${{ github.sha }}
-            BUILD_TIME=${{ github.event.head_commit.timestamp || format('{0:yyyy-MM-ddTHH:mm:ssZ}', now()) }}
+            BUILD_TIME=${{ github.event.head_commit.timestamp }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ github.run_number }}-${{ github.sha }}
