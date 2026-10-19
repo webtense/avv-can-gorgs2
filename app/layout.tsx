@@ -1,4 +1,5 @@
 import { getVersion } from '@/lib/version';
+import VersionManager from './components/VersionManager';
 
 export const metadata = {
   title: 'Can Gorgs II — Arxiu Històric',
@@ -15,7 +16,10 @@ export default function RootLayout({
       <head>
         <meta name="app-version" content={version.version} />
       </head>
-      <body>{children}</body>
+      <body>
+        <VersionManager />
+        {children}
+      </body>
     </html>
   );
 }

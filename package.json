@@ -1,6 +1,6 @@
 {
   "name": "avv-can-gorgs2",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Web archivística pública de Can Gorgs II",
   "scripts": {
     "prebuild": "node scripts/generate-sw.js",
