@@ -12,12 +12,14 @@ RUN npm run build
 
 # Runtime stage
 FROM node:20-alpine
-WORKDIR /app
 RUN apk add --no-cache curl
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY package*.json ./
+WORKDIR /app
+COPY --from=builder --chown=node:node /app/.next ./.next
+COPY --from=builder --chown=node:node /app/public ./public
+COPY --chown=node:node package*.json ./
 RUN npm ci --omit=dev
+
+USER node
 
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || exit 1

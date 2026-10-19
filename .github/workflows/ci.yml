@@ -25,14 +25,18 @@ jobs:
         with:
           node-version: '20'
 
+      - uses: gitleaks/gitleaks-action@v2
+        with:
+          config-path: .gitleaksignore  # opcional, si existe
+
       - name: npm ci
         run: npm ci
 
-      - name: npm run build
-        run: npm run build
-
       - name: npm run lint
         run: npm run lint
+
+      - name: npm run build
+        run: npm run build
 
       - name: Build and push image
         if: github.ref == 'refs/heads/main'
@@ -43,6 +47,9 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+          build-args: |
+            NEXT_PUBLIC_BUILD_ID=${{ github.ref_name }}-${{ github.sha }}
+            BUILD_TIME=${{ github.event.head_commit.timestamp || format('{0:yyyy-MM-ddTHH:mm:ssZ}', now()) }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ github.run_number }}-${{ github.sha }}
