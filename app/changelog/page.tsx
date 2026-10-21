@@ -1,4 +1,4 @@
-import { CHANGELOG } from '@/app/api/changelog/route';
+import { CHANGELOG } from '@/lib/changelog';
 
 export const metadata = {
   title: 'Historial de versiones — Arxiu Can Gorgs II',
