@@ -1,16 +1,28 @@
 import Link from 'next/link';
+import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import ArchiveDetail from '@/components/archive/ArchiveDetail';
-import { ArchiveItemDetail } from '@/lib/types';
+import type { ArchiveDetailResponse } from '@/app/api/archive/types';
 
 interface ArchiveDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-// Fins que l'Oleada 5 connecti aquesta pàgina a /api/archive/[id], es
-// renderitza amb dades buides en lloc de fer servir un mock desactualitzat.
-async function getItem(_id: string): Promise<ArchiveItemDetail | null> {
-  return null;
+async function getItem(id: string): Promise<ArchiveDetailResponse | null> {
+  const headerList = await headers();
+  const host = headerList.get('x-forwarded-host') ?? headerList.get('host');
+  const protocol = headerList.get('x-forwarded-proto') ?? 'http';
+  const baseUrl = host ? `${protocol}://${host}` : '';
+
+  const res = await fetch(`${baseUrl}/api/archive/${id}`, { cache: 'no-store' });
+
+  if (res.status === 404) {
+    return null;
+  }
+  if (!res.ok) {
+    throw new Error(`Error ${res.status} al cargar el elemento del archivo`);
+  }
+  return (await res.json()) as ArchiveDetailResponse;
 }
 
 export default async function ArchiveDetailPage({

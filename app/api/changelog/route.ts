@@ -1,4 +1,22 @@
-const CHANGELOG = [
+export const CHANGELOG = [
+  {
+    version: '1.0.0',
+    date: '2026-10-21',
+    sections: {
+      features: [
+        'Archivo conectado a datos reales',
+        'Aviso de nueva versión',
+        'Historial de versiones',
+      ],
+      fixes: [],
+      internal: [
+        'hooks/useArchive.ts con hooks de lista, detalle y búsqueda contra /api/archive, /api/archive/[id] y /api/search',
+        'Página principal, listado de arxiu (con filtros, paginación y búsqueda por query string) y detalle de ítem conectados a las APIs reales',
+        'VersionManager revisa /api/version cada 30s y también al volver a la pestaña (visibilitychange)',
+        'Página pública /changelog con el historial de versiones',
+      ],
+    },
+  },
   {
     version: '0.6.0',
     date: '2026-10-21',
