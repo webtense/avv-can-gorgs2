@@ -1,5 +1,17 @@
 const CHANGELOG = [
   {
+    version: '0.2.0',
+    date: '2026-10-21',
+    sections: {
+      features: [
+        'Fase 0: setup de CI/CD validado (lint, build, gitleaks, publicación GHCR)',
+        'Primer ciclo completo de despliegue de prueba',
+      ],
+      fixes: [],
+      internal: ['Preparado para Oleada 1: Prisma schema'],
+    },
+  },
+  {
     version: '0.1.1',
     date: '2026-10-19',
     sections: {
