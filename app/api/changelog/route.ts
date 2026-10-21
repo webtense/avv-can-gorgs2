@@ -1,5 +1,20 @@
 const CHANGELOG = [
   {
+    version: '0.5.0',
+    date: '2026-10-21',
+    sections: {
+      features: [
+        'Suite de tests E2E con Playwright (tests/e2e/archive.spec.ts) cubriendo /api/archive, /api/archive/[id], /api/search, /api/version, /api/health y /api/changelog',
+        'Scripts npm test / test:ui / test:debug',
+      ],
+      fixes: [],
+      internal: [
+        'Auditoría de seguridad: npm audit baseline (audit-report.txt, no versionado) y gitleaks sin secretos detectados',
+        'Vulnerabilidad high conocida en postcss (transitiva vía next@15) requiere upgrade breaking a next@16; pendiente para una oleada futura',
+      ],
+    },
+  },
+  {
     version: '0.4.0',
     date: '2026-10-21',
     sections: {
