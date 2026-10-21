@@ -1,67 +1,122 @@
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server'
+import { prisma } from '@/lib/db'
+import { validateListQuery } from './validators'
+import { handleError, ArchiveError } from './errors'
+import { attachTags, mapDocument, mapEvent, mapPhoto, mapVideo } from './mappers'
+import type { ArchiveItemResponse, ArchiveListResponse } from './types'
 
-type ArchiveType = 'all' | 'events' | 'photos' | 'documents';
-
-interface ArchiveItem {
-  id: string;
-  type: 'events' | 'photos' | 'documents';
-  title: string;
-  description: string | null;
-  year: number | null;
-}
-
-// Placeholder in-memory dataset until the Fase 2 database connection lands.
-// Shape matches the `events`, `photos` and `documents` tables from
-// app/db/migrations/001_initial_schema.sql.
-const MOCK_ITEMS: ArchiveItem[] = [];
-
-function matchesSearch(item: ArchiveItem, search: string): boolean {
-  const needle = search.toLowerCase();
-  return (
-    item.title.toLowerCase().includes(needle) ||
-    (item.description ?? '').toLowerCase().includes(needle)
-  );
-}
+const VALID_TYPES = ['event', 'photo', 'document', 'video'] as const
+type ItemType = (typeof VALID_TYPES)[number]
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+  try {
+    const { searchParams } = new URL(request.url)
 
-  const type = (searchParams.get('type') ?? 'all') as ArchiveType;
-  const search = searchParams.get('search')?.trim() ?? '';
-  const limitParam = Number(searchParams.get('limit') ?? '20');
-  const offsetParam = Number(searchParams.get('offset') ?? '0');
+    const { page, limit, search } = validateListQuery({
+      page: searchParams.get('page') ?? undefined,
+      limit: searchParams.get('limit') ?? undefined,
+      search: searchParams.get('search') ?? undefined
+    })
 
-  const limit = Number.isFinite(limitParam)
-    ? Math.min(Math.max(limitParam, 1), 100)
-    : 20;
-  const offset = Number.isFinite(offsetParam) ? Math.max(offsetParam, 0) : 0;
+    if (
+      (searchParams.has('page') && Number.isNaN(parseInt(searchParams.get('page')!, 10))) ||
+      (searchParams.has('limit') && Number.isNaN(parseInt(searchParams.get('limit')!, 10)))
+    ) {
+      throw new ArchiveError(400, 'page y limit deben ser números válidos')
+    }
 
-  const validTypes: ArchiveType[] = ['all', 'events', 'photos', 'documents'];
-  if (!validTypes.includes(type)) {
-    return Response.json(
-      { error: `Invalid type. Expected one of: ${validTypes.join(', ')}` },
-      { status: 400 }
-    );
+    const typeParam = searchParams.get('type') ?? undefined
+    if (typeParam && !VALID_TYPES.includes(typeParam as ItemType)) {
+      throw new ArchiveError(400, `type inválido. Esperado uno de: ${VALID_TYPES.join(', ')}`)
+    }
+    const type = typeParam as ItemType | undefined
+
+    const tag = searchParams.get('tag') ?? undefined
+
+    let allowedIdsByType: Partial<Record<ItemType, Set<string>>> | undefined
+    if (tag) {
+      const tagRow = await prisma.tags.findUnique({ where: { name: tag } })
+      allowedIdsByType = { event: new Set(), photo: new Set(), document: new Set(), video: new Set() }
+      if (tagRow) {
+        const itemTags = await prisma.item_tags.findMany({ where: { tag_id: tagRow.id } })
+        for (const it of itemTags) {
+          const t = it.item_type as ItemType
+          if (allowedIdsByType[t]) {
+            allowedIdsByType[t]!.add(it.item_id)
+          }
+        }
+      }
+    }
+
+    const searchFilter = search
+      ? {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' as const } },
+            { description: { contains: search, mode: 'insensitive' as const } }
+          ]
+        }
+      : {}
+
+    const buildWhere = (itemType: ItemType) => {
+      const where: Record<string, unknown> = { ...searchFilter }
+      if (allowedIdsByType) {
+        where.id = { in: Array.from(allowedIdsByType[itemType] ?? []) }
+      }
+      return where
+    }
+
+    let items: ArchiveItemResponse[] = []
+
+    const fetchEvents = !type || type === 'event'
+    const fetchPhotos = !type || type === 'photo'
+    const fetchDocuments = !type || type === 'document'
+    const fetchVideos = !type || type === 'video'
+
+    const [events, photos, documents, videos] = await Promise.all([
+      fetchEvents
+        ? prisma.events.findMany({ where: buildWhere('event') })
+        : Promise.resolve([]),
+      fetchPhotos
+        ? prisma.photos.findMany({ where: buildWhere('photo') })
+        : Promise.resolve([]),
+      fetchDocuments
+        ? prisma.documents.findMany({ where: buildWhere('document') })
+        : Promise.resolve([]),
+      fetchVideos
+        ? prisma.videos.findMany({ where: buildWhere('video') })
+        : Promise.resolve([])
+    ])
+
+    items = [
+      ...events.map((e) => mapEvent(e)),
+      ...photos.map((p) => mapPhoto(p)),
+      ...documents.map((d) => mapDocument(d)),
+      ...videos.map((v) => mapVideo(v))
+    ]
+
+    // Orden estable por fecha descendente (los que no tienen fecha van al final)
+    items.sort((a, b) => {
+      if (!a.date && !b.date) return 0
+      if (!a.date) return 1
+      if (!b.date) return -1
+      return b.date.localeCompare(a.date)
+    })
+
+    const total = items.length
+    const start = (page - 1) * limit
+    const pageItems = items.slice(start, start + limit)
+    const withTags = await attachTags(pageItems)
+
+    const response: ArchiveListResponse = {
+      items: withTags,
+      total,
+      page,
+      limit,
+      hasMore: start + limit < total
+    }
+
+    return Response.json(response)
+  } catch (error) {
+    return handleError(error)
   }
-
-  let items = MOCK_ITEMS;
-
-  if (type !== 'all') {
-    items = items.filter((item) => item.type === type);
-  }
-
-  if (search) {
-    items = items.filter((item) => matchesSearch(item, search));
-  }
-
-  const total = items.length;
-  const page = items.slice(offset, offset + limit);
-
-  return Response.json({
-    message: 'Archive API (Fase 2)',
-    items: page,
-    total,
-    limit,
-    offset,
-  });
 }

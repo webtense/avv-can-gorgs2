@@ -1,5 +1,19 @@
 const CHANGELOG = [
   {
+    version: '0.4.0',
+    date: '2026-10-21',
+    sections: {
+      features: [
+        'APIs reales de /api/archive, /api/archive/[id] y /api/search wired a Prisma (events, photos, documents, videos)',
+        'Búsqueda por título/descripción (contains insensitive) y filtros por type y tag',
+        'Detalle de item con relatedItems (fotos/documentos/vídeos del mismo evento, o hermanos por event_id)',
+        'Facets de /api/search (conteo por type y por tag)',
+      ],
+      fixes: [],
+      internal: ['app/api/archive/mappers.ts centraliza el mapeo a ArchiveItemResponse y la resolución de tags vía item_tags'],
+    },
+  },
+  {
     version: '0.3.0',
     date: '2026-10-21',
     sections: {
