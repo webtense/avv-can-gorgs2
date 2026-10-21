@@ -41,6 +41,18 @@ jobs:
       - name: npm run build
         run: npm run build
 
+      - name: npm audit (baseline, no bloqueante)
+        run: npm audit --omit=dev --audit-level=high || true
+
+      - name: Playwright E2E (no bloqueante, requiere BASE_URL)
+        if: ${{ vars.E2E_BASE_URL != '' }}
+        env:
+          BASE_URL: ${{ vars.E2E_BASE_URL }}
+        continue-on-error: true
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test
+
       - name: Set short sha
         if: github.ref == 'refs/heads/main'
         id: vars
