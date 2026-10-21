@@ -4,9 +4,9 @@ import { handleError, ArchiveError } from '../errors'
 import { attachTags, mapDocument, mapEvent, mapPhoto, mapVideo } from '../mappers'
 import type { ArchiveDetailResponse, ArchiveItemResponse } from '../types'
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params
+    const { id } = await params
 
     if (!validateId(id)) {
       throw new ArchiveError(400, 'id inválido, se espera un UUID')
