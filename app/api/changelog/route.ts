@@ -1,5 +1,22 @@
 const CHANGELOG = [
   {
+    version: '0.6.0',
+    date: '2026-10-21',
+    sections: {
+      features: [
+        'Componentes React 19 + Tailwind CSS: Header, Footer, ArchiveList, ArchiveCard, ArchiveDetail, ArchiveFilters, SearchBar, Pagination, VersionBadge, ErrorBoundary',
+        'Páginas: homepage, listado de arxiu con filtros, detalle de ítem con breadcrumbs y relacionados',
+        'Diseño responsive mobile-first (320px–1024px+), paleta de marca (#8B1E2D / #D4A574) y tipografías Outfit + Playfair Display',
+        'VersionManager con banner de actualización disponible (polling cada 30s)',
+      ],
+      fixes: [],
+      internal: [
+        'Tailwind CSS 3.4 configurado (tailwind.config.ts, postcss.config.js, app/globals.css)',
+        'Listo para Oleada 5: integración con /api/archive real y PWA',
+      ],
+    },
+  },
+  {
     version: '0.3.0',
     date: '2026-10-21',
     sections: {
