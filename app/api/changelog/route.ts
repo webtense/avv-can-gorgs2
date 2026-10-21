@@ -17,6 +17,35 @@ const CHANGELOG = [
     },
   },
   {
+    version: '0.5.0',
+    date: '2026-10-21',
+    sections: {
+      features: [
+        'Suite de tests E2E con Playwright (tests/e2e/archive.spec.ts) cubriendo /api/archive, /api/archive/[id], /api/search, /api/version, /api/health y /api/changelog',
+        'Scripts npm test / test:ui / test:debug',
+      ],
+      fixes: [],
+      internal: [
+        'Auditoría de seguridad: npm audit baseline (audit-report.txt, no versionado) y gitleaks sin secretos detectados',
+        'Vulnerabilidad high conocida en postcss (transitiva vía next@15) requiere upgrade breaking a next@16; pendiente para una oleada futura',
+      ],
+    },
+  },
+  {
+    version: '0.4.0',
+    date: '2026-10-21',
+    sections: {
+      features: [
+        'APIs reales de /api/archive, /api/archive/[id] y /api/search wired a Prisma (events, photos, documents, videos)',
+        'Búsqueda por título/descripción (contains insensitive) y filtros por type y tag',
+        'Detalle de item con relatedItems (fotos/documentos/vídeos del mismo evento, o hermanos por event_id)',
+        'Facets de /api/search (conteo por type y por tag)',
+      ],
+      fixes: [],
+      internal: ['app/api/archive/mappers.ts centraliza el mapeo a ArchiveItemResponse y la resolución de tags vía item_tags'],
+    },
+  },
+  {
     version: '0.3.0',
     date: '2026-10-21',
     sections: {
