@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { Suspense, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ArchiveFilters from '@/components/archive/ArchiveFilters';
 import ArchiveList from '@/components/archive/ArchiveList';
@@ -12,6 +12,14 @@ import { useArchiveList } from '@/hooks/useArchive';
 const PAGE_SIZE = 12;
 
 export default function ArchivePage() {
+  return (
+    <Suspense fallback={null}>
+      <ArchivePageContent />
+    </Suspense>
+  );
+}
+
+function ArchivePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
