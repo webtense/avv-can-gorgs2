@@ -1,5 +1,19 @@
 const CHANGELOG = [
   {
+    version: '0.3.0',
+    date: '2026-10-21',
+    sections: {
+      features: [
+        'Prisma ORM integrado sobre el schema PostgreSQL real (14 tablas: sources, rights, people, places, festivals, events, photos, documents, videos, tags, photo_people, item_tags, contributions, audit_log)',
+        'prisma/schema.prisma generado por introspección (`prisma db pull`) del SQL existente, sin tocar app/db/migrations/001_initial_schema.sql',
+        'lib/db.ts — cliente Prisma singleton',
+        'Migración baseline de Prisma (prisma/migrations) marcada como aplicada sobre el esquema ya desplegado',
+      ],
+      fixes: [],
+      internal: ['Listo para Oleada 2: APIs reales con queries Prisma'],
+    },
+  },
+  {
     version: '0.2.0',
     date: '2026-10-21',
     sections: {

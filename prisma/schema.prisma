@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model audit_log {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actor      String?
+  action     String
+  item_type  String
+  item_id    String?  @db.Uuid
+  details    Json?
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([item_type, item_id], map: "idx_audit_log_item")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model contributions {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contributor_name  String?
+  contributor_email String?
+  item_type         String
+  payload           Json
+  status            String    @default("pending")
+  reviewed_by       String?
+  reviewed_at       DateTime? @db.Timestamptz(6)
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@index([status], map: "idx_contributions_status")
+}
+
+model documents {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title         String
+  description   String?
+  file_path     String
+  document_type String?
+  document_year Int?
+  event_id      String?  @db.Uuid
+  source_id     String?  @db.Uuid
+  rights_id     String?  @db.Uuid
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime @default(now()) @db.Timestamptz(6)
+  events        events?  @relation(fields: [event_id], references: [id], onUpdate: NoAction)
+  rights        rights?  @relation(fields: [rights_id], references: [id], onUpdate: NoAction)
+  sources       sources? @relation(fields: [source_id], references: [id], onUpdate: NoAction)
+
+  @@index([document_year], map: "idx_documents_document_year")
+  @@index([event_id], map: "idx_documents_event_id")
+  @@index([title(ops: raw("gin_trgm_ops"))], map: "idx_documents_title_trgm", type: Gin)
+}
+
+model events {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String
+  description String?
+  event_date  DateTime?   @db.Date
+  event_year  Int?
+  festival_id String?     @db.Uuid
+  place_id    String?     @db.Uuid
+  source_id   String?     @db.Uuid
+  rights_id   String?     @db.Uuid
+  created_at  DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime    @default(now()) @db.Timestamptz(6)
+  documents   documents[]
+  festivals   festivals?  @relation(fields: [festival_id], references: [id], onUpdate: NoAction)
+  places      places?     @relation(fields: [place_id], references: [id], onUpdate: NoAction)
+  rights      rights?     @relation(fields: [rights_id], references: [id], onUpdate: NoAction)
+  sources     sources?    @relation(fields: [source_id], references: [id], onUpdate: NoAction)
+  photos      photos[]
+  videos      videos[]
+
+  @@index([event_year], map: "idx_events_event_year")
+  @@index([festival_id], map: "idx_events_festival_id")
+  @@index([place_id], map: "idx_events_place_id")
+  @@index([title(ops: raw("gin_trgm_ops"))], map: "idx_events_title_trgm", type: Gin)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model festivals {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String
+  description   String?
+  typical_month Int?
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  events        events[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model item_tags {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tag_id     String   @db.Uuid
+  item_type  String
+  item_id    String   @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  tags       tags     @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([tag_id, item_type, item_id])
+  @@index([item_type, item_id], map: "idx_item_tags_item")
+}
+
+model people {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  full_name    String
+  birth_year   Int?
+  death_year   Int?
+  biography    String?
+  created_at   DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime       @default(now()) @db.Timestamptz(6)
+  photo_people photo_people[]
+}
+
+model photo_people {
+  photo_id  String @db.Uuid
+  person_id String @db.Uuid
+  people    people @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  photos    photos @relation(fields: [photo_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([photo_id, person_id])
+  @@index([person_id], map: "idx_photo_people_person_id")
+}
+
+model photos {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title          String
+  description    String?
+  file_path      String
+  thumbnail_path String?
+  taken_year     Int?
+  event_id       String?        @db.Uuid
+  place_id       String?        @db.Uuid
+  source_id      String?        @db.Uuid
+  rights_id      String?        @db.Uuid
+  created_at     DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime       @default(now()) @db.Timestamptz(6)
+  photo_people   photo_people[]
+  events         events?        @relation(fields: [event_id], references: [id], onUpdate: NoAction)
+  places         places?        @relation(fields: [place_id], references: [id], onUpdate: NoAction)
+  rights         rights?        @relation(fields: [rights_id], references: [id], onUpdate: NoAction)
+  sources        sources?       @relation(fields: [source_id], references: [id], onUpdate: NoAction)
+
+  @@index([event_id], map: "idx_photos_event_id")
+  @@index([place_id], map: "idx_photos_place_id")
+  @@index([taken_year], map: "idx_photos_taken_year")
+  @@index([title(ops: raw("gin_trgm_ops"))], map: "idx_photos_title_trgm", type: Gin)
+}
+
+model places {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  description String?
+  latitude    Decimal? @db.Decimal(9, 6)
+  longitude   Decimal? @db.Decimal(9, 6)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  events      events[]
+  photos      photos[]
+}
+
+model rights {
+  id                   String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                 String      @unique
+  description          String
+  is_public_domain     Boolean     @default(false)
+  requires_attribution Boolean     @default(true)
+  created_at           DateTime    @default(now()) @db.Timestamptz(6)
+  documents            documents[]
+  events               events[]
+  photos               photos[]
+  videos               videos[]
+}
+
+model sources {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  type         String
+  contact_info String?
+  notes        String?
+  created_at   DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime    @default(now()) @db.Timestamptz(6)
+  documents    documents[]
+  events       events[]
+  photos       photos[]
+  videos       videos[]
+}
+
+model tags {
+  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String      @unique
+  created_at DateTime    @default(now()) @db.Timestamptz(6)
+  item_tags  item_tags[]
+}
+
+model videos {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title            String
+  description      String?
+  file_path        String
+  duration_seconds Int?
+  recorded_year    Int?
+  event_id         String?  @db.Uuid
+  source_id        String?  @db.Uuid
+  rights_id        String?  @db.Uuid
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime @default(now()) @db.Timestamptz(6)
+  events           events?  @relation(fields: [event_id], references: [id], onUpdate: NoAction)
+  rights           rights?  @relation(fields: [rights_id], references: [id], onUpdate: NoAction)
+  sources          sources? @relation(fields: [source_id], references: [id], onUpdate: NoAction)
+
+  @@index([event_id], map: "idx_videos_event_id")
+  @@index([recorded_year], map: "idx_videos_recorded_year")
+}
