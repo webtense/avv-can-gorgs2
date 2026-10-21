@@ -10,3 +10,9 @@ node_modules/
 coverage/
 dist/
 build/
+audit-report.txt
+next-env.d.ts
+tsconfig.tsbuildinfo
+/test-results/
+/playwright-report/
+/playwright/.cache/
