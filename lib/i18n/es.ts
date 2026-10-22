@@ -22,6 +22,11 @@ export const messages: Messages = {
     navAriaMobile: 'Navegación móvil',
     menuOpen: 'Abrir menú',
     menuClose: 'Cerrar menú',
+    header: {
+      login: 'Inicia sesión',
+      memberArea: 'Área de socios',
+      logout: 'Cerrar sesión',
+    },
     footer: {
       tagline: 'Preservando la memoria histórica del barrio.',
       contactTitle: 'Contacto',

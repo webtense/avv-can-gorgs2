@@ -37,6 +37,22 @@ export const CHANGELOG: ChangelogEntry[] = [
     },
   },
   {
+    version: '1.2.1',
+    date: '2026-10-22',
+    sections: {
+      features: [
+        'Botó «Inicia sessió» a la capçalera, i «Àrea de socis» quan ja has entrat',
+      ],
+      fixes: [
+        'L\'inici de sessió funciona des de la xarxa local (sense HTTPS)',
+      ],
+      internal: [
+        'Cookie de sessió segura només amb COOKIE_SECURE=true',
+        'Endpoint GET /api/socis/me per saber si hi ha sessió',
+      ],
+    },
+  },
+  {
     version: '1.2.0',
     date: '2026-10-22',
     sections: {

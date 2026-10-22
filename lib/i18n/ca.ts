@@ -20,6 +20,11 @@ export const messages = {
     navAriaMobile: 'Navegació mòbil',
     menuOpen: 'Obrir menú',
     menuClose: 'Tancar menú',
+    header: {
+      login: 'Inicia sessió',
+      memberArea: 'Àrea de socis',
+      logout: 'Tanca sessió',
+    },
     footer: {
       tagline: 'Preservant la memòria històrica del barri.',
       contactTitle: 'Contacte',
