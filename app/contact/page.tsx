@@ -1,14 +1,13 @@
 import PageShell from '@/components/common/PageShell';
 import { siteConfig } from '@/lib/site-config';
 
-export const metadata = { title: 'Contacte · Can Gorgs II' };
+export const metadata = { title: 'Contacte · AVV Can Gorgs II' };
 
 export default function ContactPage() {
-  const hasAny = siteConfig.email || siteConfig.phone || siteConfig.address;
   return (
     <PageShell title="Contacte">
-      {siteConfig.address && <p>{siteConfig.address}</p>}
-      {siteConfig.phone && <p>Telèfon: {siteConfig.phone}</p>}
+      <p>{siteConfig.fullName}</p>
+      <p>{siteConfig.address}</p>
       {siteConfig.email && (
         <p>
           Correu electrònic:{' '}
@@ -17,7 +16,7 @@ export default function ContactPage() {
           </a>
         </p>
       )}
-      {!hasAny && <p>Les dades de contacte es publicaran properament.</p>}
+      {siteConfig.phone && <p>Telèfon: {siteConfig.phone}</p>}
     </PageShell>
   );
 }

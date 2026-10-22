@@ -10,6 +10,22 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.1.0',
+    date: '2026-10-22',
+    sections: {
+      features: [
+        'Nova pàgina El barri: història de la Torre d\'en Gorgs amb fotografies de llicència lliure',
+        'Pàgina L\'associació amb la trajectòria pública de l\'entitat',
+        'Dades de contacte de l\'associació',
+      ],
+      fixes: [],
+      internal: [
+        'lib/site-config.ts: dades de l\'associació i menús en un sol fitxer; els camps no confirmats no es mostren',
+        'Imatges de la Torre amb metadades EXIF (inclosa la ubicació GPS) eliminades abans de publicar-les',
+      ],
+    },
+  },
+  {
     version: '1.0.2',
     date: '2026-10-22',
     sections: {
