@@ -42,6 +42,10 @@ export const messages = {
       message: 'No hem pogut carregar aquest contingut. Prova de nou en uns instants.',
       retry: 'Tornar a provar',
     },
+    brand: {
+      slogan: 'Més que un barri',
+      since: 'Des de 1984',
+    },
   },
   home: {
     title: 'Arxiu Històric Can Gorgs II',
@@ -176,6 +180,20 @@ export const messages = {
     submitting: 'Enviant…',
     genericError: "No s'ha pogut completar el registre.",
     connectionError: 'Error de connexió. Torna-ho a provar.',
+  },
+  canviaContrasenya: {
+    title: 'Canvia la contrasenya',
+    linkLabel: 'Canvia la contrasenya',
+    currentPassword: 'Contrasenya actual', // gitleaks:allow
+    newPassword: 'Contrasenya nova (mínim 10 caràcters)', // gitleaks:allow
+    confirmPassword: 'Repeteix la contrasenya nova', // gitleaks:allow
+    submit: 'Canvia la contrasenya',
+    submitting: 'Canviant…',
+    success: 'Contrasenya actualitzada correctament.',
+    mismatchError: 'La repetició no coincideix amb la contrasenya nova.',
+    genericError: "No s'ha pogut canviar la contrasenya.",
+    connectionError: 'Error de connexió. Torna-ho a provar.',
+    backToSocis: "Torna a l'àrea de socis",
   },
   pujarFotos: {
     title: 'Puja fotos',
@@ -355,6 +373,10 @@ export const messages = {
     photoNotFound: 'Foto no trobada.',
     photoNotAvailable: 'Foto no disponible.',
     fileNotAvailable: 'Fitxer no disponible.',
+    currentPasswordIncorrect: 'La contrasenya actual no és correcta.', // gitleaks:allow
+    passwordMismatch: 'La repetició no coincideix amb la contrasenya nova.', // gitleaks:allow
+    passwordChanged: 'Contrasenya actualitzada correctament.', // gitleaks:allow
+    imageProcessingFailed: 'No s\'ha pogut processar la imatge "{name}". Prova amb un altre fitxer.',
   },
 } as const;
 

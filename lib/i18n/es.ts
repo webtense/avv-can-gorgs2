@@ -44,6 +44,10 @@ export const messages: Messages = {
       message: 'No hemos podido cargar este contenido. Prueba de nuevo en unos instantes.',
       retry: 'Volver a intentarlo',
     },
+    brand: {
+      slogan: 'Más que un barrio',
+      since: 'Desde 1984',
+    },
   },
   home: {
     title: 'Archivo Histórico Can Gorgs II',
@@ -178,6 +182,20 @@ export const messages: Messages = {
     submitting: 'Enviando…',
     genericError: 'No se ha podido completar el registro.',
     connectionError: 'Error de conexión. Inténtalo de nuevo.',
+  },
+  canviaContrasenya: {
+    title: 'Cambiar la contraseña',
+    linkLabel: 'Cambiar la contraseña',
+    currentPassword: 'Contraseña actual', // gitleaks:allow
+    newPassword: 'Contraseña nueva (mínimo 10 caracteres)', // gitleaks:allow
+    confirmPassword: 'Repite la contraseña nueva', // gitleaks:allow
+    submit: 'Cambiar la contraseña',
+    submitting: 'Cambiando…',
+    success: 'Contraseña actualizada correctamente.',
+    mismatchError: 'La repetición no coincide con la contraseña nueva.',
+    genericError: 'No se ha podido cambiar la contraseña.',
+    connectionError: 'Error de conexión. Vuelve a intentarlo.',
+    backToSocis: 'Volver al área de socios',
   },
   pujarFotos: {
     title: 'Sube fotos',
@@ -357,6 +375,10 @@ export const messages: Messages = {
     photoNotFound: 'Foto no encontrada.',
     photoNotAvailable: 'Foto no disponible.',
     fileNotAvailable: 'Fichero no disponible.',
+    currentPasswordIncorrect: 'La contraseña actual no es correcta.', // gitleaks:allow
+    passwordMismatch: 'La repetición no coincide con la contraseña nueva.', // gitleaks:allow
+    passwordChanged: 'Contraseña actualizada correctamente.', // gitleaks:allow
+    imageProcessingFailed: 'No se ha podido procesar la imagen "{name}". Prueba con otro archivo.',
   },
 };
 
