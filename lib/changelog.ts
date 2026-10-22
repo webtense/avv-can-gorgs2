@@ -21,7 +21,7 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
-    version: '1.5.3',
+    version: '1.5.4',
     date: '2026-10-23',
     sections: {
       features: [
@@ -40,6 +40,32 @@ export const CHANGELOG: ChangelogEntry[] = [
           'Informe del evento de barra ampliado con coste y margen por producto (salidas, vendido, regalado a coste y a valor, margen) y un resumen económico del evento, también en la exportación CSV',
         ],
         fixes: [],
+      },
+    },
+  },
+  {
+    version: '1.5.3',
+    date: '2026-10-23',
+    sections: {
+      features: [
+        'Nou mòdul de comptabilitat i cobraments a /admin/comptabilitat: quotes de socis, factures emeses (amb numeració correlativa i PDF borrador) i rebudes, pagaments a proveïdors i informe trimestral',
+        'Configuració de l\'import de la quota de socis des de l\'admin (sense valor per defecte fins que la junta el fixi)',
+        'Auditoria de tots els canvis d\'estat del mòdul de comptabilitat',
+      ],
+      fixes: [],
+      internal: [
+        'L\'IVA es guarda sempre com a camp independent (base, tipus i quota) i mai es dedueix només en pantalla; restriccions de BD garanteixen que base + IVA = total',
+      ],
+      es: {
+        features: [
+          'Nuevo módulo de contabilidad y cobros en /admin/comptabilitat: cuotas de socios, facturas emitidas (con numeración correlativa y PDF borrador) y recibidas, pagos a proveedores e informe trimestral',
+          'Configuración del importe de la cuota de socios desde el admin (sin valor por defecto hasta que la junta lo fije)',
+          'Auditoría de todos los cambios de estado del módulo de contabilidad',
+        ],
+        fixes: [],
+        internal: [
+          'El IVA se guarda siempre como campo independiente (base, tipo y cuota) y nunca se deduce solo en pantalla; restricciones de BD garantizan que base + IVA = total',
+        ],
       },
     },
   },
