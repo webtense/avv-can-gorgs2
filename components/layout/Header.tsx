@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import VersionBadge from '@/components/common/VersionBadge';
 import { navigation } from '@/lib/site-config';
@@ -12,6 +12,23 @@ interface HeaderProps {
 
 export default function Header({ version = '0.6.0-BETA' }: HeaderProps) {
   const [open, setOpen] = useState(false);
+  const [member, setMember] = useState<{ name: string; admin: boolean } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/socis/me', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d) => setMember(d.member ?? null))
+      .catch(() => setMember(null));
+  }, []);
+
+  const authLink = member ? (
+    <>
+      <Link href="/socis" className="text-sm font-medium text-primary hover:underline">Àrea de socis</Link>
+      <Link href="/socis/sortir" className="text-sm font-medium text-slate-600 hover:text-primary">Tanca sessió</Link>
+    </>
+  ) : (
+    <Link href="/socis/login" className="text-sm font-medium text-primary hover:underline">Inicia sessió</Link>
+  );
 
   return (
     <header className="fixed top-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200">
@@ -40,7 +57,8 @@ export default function Header({ version = '0.6.0-BETA' }: HeaderProps) {
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-4">
+            {authLink}
             <VersionBadge version={version} />
           </div>
 
@@ -95,7 +113,8 @@ export default function Header({ version = '0.6.0-BETA' }: HeaderProps) {
                 {link.label}
               </Link>
             ))}
-            <div className="px-3 pt-2">
+            <div className="px-3 pt-2 flex flex-col gap-2">
+              {authLink}
               <VersionBadge version={version} />
             </div>
           </nav>
