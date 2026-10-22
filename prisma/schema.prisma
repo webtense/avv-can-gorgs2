@@ -56,29 +56,84 @@ model documents {
 }
 
 model events {
-  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title       String
-  description String?
-  event_date  DateTime?   @db.Date
-  event_year  Int?
-  festival_id String?     @db.Uuid
-  place_id    String?     @db.Uuid
-  source_id   String?     @db.Uuid
-  rights_id   String?     @db.Uuid
-  created_at  DateTime    @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime    @default(now()) @db.Timestamptz(6)
-  documents   documents[]
-  festivals   festivals?  @relation(fields: [festival_id], references: [id], onUpdate: NoAction)
-  places      places?     @relation(fields: [place_id], references: [id], onUpdate: NoAction)
-  rights      rights?     @relation(fields: [rights_id], references: [id], onUpdate: NoAction)
-  sources     sources?    @relation(fields: [source_id], references: [id], onUpdate: NoAction)
-  photos      photos[]
-  videos      videos[]
+  id                 String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title              String
+  description        String?
+  event_date         DateTime?       @db.Date
+  event_year         Int?
+  festival_id        String?         @db.Uuid
+  place_id           String?         @db.Uuid
+  source_id          String?         @db.Uuid
+  rights_id          String?         @db.Uuid
+  members_only       Boolean         @default(false)
+  reservations_open  Boolean         @default(false)
+  capacity           Int?
+  created_at         DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime        @default(now()) @db.Timestamptz(6)
+  documents          documents[]
+  festivals          festivals?      @relation(fields: [festival_id], references: [id], onUpdate: NoAction)
+  places             places?         @relation(fields: [place_id], references: [id], onUpdate: NoAction)
+  rights             rights?         @relation(fields: [rights_id], references: [id], onUpdate: NoAction)
+  sources            sources?        @relation(fields: [source_id], references: [id], onUpdate: NoAction)
+  photos             photos[]
+  videos             videos[]
+  reservations       reservations[]
+  event_photos       event_photos[]
 
   @@index([event_year], map: "idx_events_event_year")
   @@index([festival_id], map: "idx_events_festival_id")
   @@index([place_id], map: "idx_events_place_id")
   @@index([title(ops: raw("gin_trgm_ops"))], map: "idx_events_title_trgm", type: Gin)
+}
+
+model members {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  email           String         @unique
+  phone           String?
+  password_hash   String
+  status          String         @default("pendent")
+  admin           Boolean        @default(false)
+  gdpr_consent_at DateTime       @db.Timestamptz(6)
+  created_at      DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime       @default(now()) @db.Timestamptz(6)
+  reservations    reservations[]
+  event_photos    event_photos[]
+
+  @@index([status], map: "idx_members_status")
+}
+
+model reservations {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  event_id   String    @db.Uuid
+  member_id  String?   @db.Uuid
+  name       String
+  email      String
+  quantity   Int
+  status     String    @default("confirmada")
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  events     events    @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  members    members?  @relation(fields: [member_id], references: [id], onUpdate: NoAction)
+
+  @@index([event_id], map: "idx_reservations_event_id")
+  @@index([member_id], map: "idx_reservations_member_id")
+}
+
+model event_photos {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  event_id    String?   @db.Uuid
+  uploaded_by String    @db.Uuid
+  file_name   String
+  mime_type   String
+  size_bytes  Int
+  caption     String?
+  approved    Boolean   @default(false)
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  events      events?   @relation(fields: [event_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  members     members   @relation(fields: [uploaded_by], references: [id], onUpdate: NoAction)
+
+  @@index([event_id], map: "idx_event_photos_event_id")
+  @@index([approved], map: "idx_event_photos_approved")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.

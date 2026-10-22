@@ -10,6 +10,29 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.2.0',
+    date: '2026-10-22',
+    sections: {
+      features: [
+        'Alta de socis per sol·licitud online, amb validació per part de la junta (/socis/registre, /admin/socis)',
+        'Inici i tancament de sessió per a socis (/socis/login, /socis/sortir), amb sessió de 30 dies',
+        'Agenda pública d\'actes (/agenda), amb marca "només socis" i reserves gratuïtes amb aforament opcional',
+        'Zona de socis (/socis) amb els propers actes i les reserves pròpies',
+        'Pujada de fotos d\'actes pels socis (/socis/fotos/pujar), pendents d\'aprovació de la junta',
+        'Galeria pública de fotos aprovades (/fotos) i moderació des de /admin/fotos',
+        'Gestió d\'actes des de /admin/events: marcar "només socis", obrir reserves i fixar aforament',
+      ],
+      fixes: [],
+      internal: [
+        'Noves taules members, reservations i event_photos; camps members_only, reservations_open i capacity a events (migració aditiva)',
+        'Contrasenyes amb scrypt (node:crypto) i sal aleatòria, mai en clar ni als registres',
+        'Cookie de sessió signada amb HMAC-SHA256 (SESSION_SECRET), httpOnly i sameSite=lax',
+        'Protecció CSRF per comprovació d\'origen a totes les peticions d\'escriptura i rate limit en memòria al login',
+        'Pendent: les imatges pujades no es reescriuen per eliminar metadades EXIF (no hi ha cap llibreria de processament d\'imatges al projecte)',
+      ],
+    },
+  },
+  {
     version: '1.1.1',
     date: '2026-10-22',
     sections: {

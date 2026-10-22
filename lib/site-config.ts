@@ -10,9 +10,12 @@ export const siteConfig = {
 export const navigation = [
   { href: '/', label: 'Inici' },
   { href: '/archive', label: 'Arxiu' },
+  { href: '/agenda', label: 'Agenda' },
+  { href: '/fotos', label: 'Fotos' },
   { href: '/about', label: 'L\'associació' },
   { href: '/barri', label: 'El barri' },
   { href: '/contact', label: 'Contacte' },
+  { href: '/socis', label: 'Socis' },
 ];
 
 export const footerLegal = [
