@@ -1,17 +1,21 @@
 'use client';
 
 import { Component, ReactNode } from 'react';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
-interface ErrorBoundaryProps {
+interface ErrorBoundaryInnerProps {
   children: ReactNode;
+  title: string;
+  message: string;
+  retryLabel: string;
 }
 
 interface ErrorBoundaryState {
   hasError: boolean;
 }
 
-export default class ErrorBoundary extends Component<
-  ErrorBoundaryProps,
+class ErrorBoundaryInner extends Component<
+  ErrorBoundaryInnerProps,
   ErrorBoundaryState
 > {
   state: ErrorBoundaryState = { hasError: false };
@@ -37,18 +41,17 @@ export default class ErrorBoundary extends Component<
           className="flex flex-col items-center justify-center gap-4 rounded-lg border border-red-200 bg-red-50 px-6 py-12 text-center"
         >
           <h2 className="font-serif text-xl text-slate-900">
-            Alguna cosa ha anat malament
+            {this.props.title}
           </h2>
           <p className="max-w-md text-sm text-slate-600">
-            No hem pogut carregar aquest contingut. Prova de nou en uns
-            instants.
+            {this.props.message}
           </p>
           <button
             type="button"
             onClick={this.handleRetry}
             className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark transition-colors"
           >
-            Tornar a provar
+            {this.props.retryLabel}
           </button>
         </div>
       );
@@ -56,4 +59,17 @@ export default class ErrorBoundary extends Component<
 
     return this.props.children;
   }
+}
+
+export default function ErrorBoundary({ children }: { children: ReactNode }) {
+  const { t } = useI18n();
+  return (
+    <ErrorBoundaryInner
+      title={t('common.errorBoundary.title')}
+      message={t('common.errorBoundary.message')}
+      retryLabel={t('common.errorBoundary.retry')}
+    >
+      {children}
+    </ErrorBoundaryInner>
+  );
 }

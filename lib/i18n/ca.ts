@@ -28,6 +28,15 @@ export const messages = {
       rightsReserved: 'Tots els drets reservats.',
     },
     breadcrumbAria: 'Breadcrumb',
+    versionManager: {
+      newVersionAvailable: "Hi ha una nova versió disponible de l'Arxiu Can Gorgs II.",
+      updateNow: 'Actualitzar ara',
+    },
+    errorBoundary: {
+      title: 'Alguna cosa ha anat malament',
+      message: 'No hem pogut carregar aquest contingut. Prova de nou en uns instants.',
+      retry: 'Tornar a provar',
+    },
   },
   home: {
     title: 'Arxiu Històric Can Gorgs II',

@@ -4,7 +4,9 @@ import { getLocale, getMessages } from '@/lib/i18n';
 export async function generateMetadata() {
   const locale = await getLocale();
   const messages = getMessages(locale);
-  return { title: `${messages.changelog.title} — Arxiu Can Gorgs II` };
+  return {
+    title: `${messages.changelog.title} — ${locale === 'es' ? 'Archivo' : 'Arxiu'} Can Gorgs II`,
+  };
 }
 
 export default async function ChangelogPage() {

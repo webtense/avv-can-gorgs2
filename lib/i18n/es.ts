@@ -30,6 +30,15 @@ export const messages: Messages = {
       rightsReserved: 'Todos los derechos reservados.',
     },
     breadcrumbAria: 'Ruta de navegación',
+    versionManager: {
+      newVersionAvailable: 'Hay una nueva versión disponible del Archivo Can Gorgs II.',
+      updateNow: 'Actualizar ahora',
+    },
+    errorBoundary: {
+      title: 'Algo ha ido mal',
+      message: 'No hemos podido cargar este contenido. Prueba de nuevo en unos instantes.',
+      retry: 'Volver a intentarlo',
+    },
   },
   home: {
     title: 'Archivo Histórico Can Gorgs II',

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 const CHECK_INTERVAL_MS = 30 * 1000;
 
@@ -12,6 +13,7 @@ const CHECK_INTERVAL_MS = 30 * 1000;
 export default function VersionManager() {
   const currentBuildId = useRef<string | null>(null);
   const [updateAvailable, setUpdateAvailable] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     let cancelled = false;
@@ -64,14 +66,14 @@ export default function VersionManager() {
     >
       <div className="mx-auto flex max-w-8xl flex-col items-center justify-between gap-2 sm:flex-row">
         <p className="text-sm">
-          Hi ha una nova versió disponible de l&apos;Arxiu Can Gorgs II.
+          {t('common.versionManager.newVersionAvailable')}
         </p>
         <button
           type="button"
           onClick={() => window.location.reload()}
           className="rounded-md bg-white px-4 py-1.5 text-sm font-semibold text-primary hover:bg-slate-100 transition-colors"
         >
-          Actualitzar ara
+          {t('common.versionManager.updateNow')}
         </button>
       </div>
     </div>
