@@ -10,6 +10,20 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.1.1',
+    date: '2026-10-22',
+    sections: {
+      features: [
+        'Logotip de l\'associació a la capçalera',
+        'Avís legal amb les dades del titular',
+      ],
+      fixes: [],
+      internal: [
+        'Logotip recortat del cartell oficial de la Festa de la Paella (fons transparent)',
+      ],
+    },
+  },
+  {
     version: '1.1.0',
     date: '2026-10-22',
     sections: {

@@ -21,13 +21,8 @@ export default function Header({ version = '0.6.0-BETA' }: HeaderProps) {
             href="/"
             className="flex items-center gap-2 font-serif text-lg font-semibold text-primary"
           >
-            <span
-              aria-hidden="true"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white text-sm font-bold"
-            >
-              CG
-            </span>
-            <span className="hidden xs:inline">Can Gorgs II</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/logo-avv-can-gorgs-ii.png" alt="AVV Can Gorgs II" className="h-10 w-auto" />
           </Link>
 
           <nav
