@@ -29,6 +29,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         <Link href="/admin/fotos" className="text-primary underline">
           {t.fotos}
         </Link>
+        <Link href="/admin/tpv" className="text-primary underline">
+          {messages.admin.tpv.title}
+        </Link>
       </nav>
       {children}
     </div>

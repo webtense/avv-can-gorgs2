@@ -4,13 +4,21 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/components/i18n/I18nProvider';
 
-export default function MemberActions({ id, status }: { id: string; status: string }) {
+export default function MemberActions({
+  id,
+  status,
+  tpvOperator,
+}: {
+  id: string;
+  status: string;
+  tpvOperator: boolean;
+}) {
   const router = useRouter();
   const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function act(action: 'aprovar' | 'rebutjar') {
+  async function act(action: 'aprovar' | 'rebutjar' | 'toggle_tpv_operator') {
     setLoading(true);
     setError(null);
     try {
@@ -30,8 +38,24 @@ export default function MemberActions({ id, status }: { id: string; status: stri
     }
   }
 
+  const tpvToggle = (
+    <button
+      type="button"
+      disabled={loading}
+      onClick={() => act('toggle_tpv_operator')}
+      className="rounded-md bg-slate-600 px-2 py-1 text-xs font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+    >
+      {tpvOperator ? '− TPV' : '+ TPV'}
+    </button>
+  );
+
   if (status !== 'pendent') {
-    return <span className="text-xs text-slate-400">—</span>;
+    return (
+      <div className="flex items-center gap-2">
+        {error && <span className="text-xs text-red-600">{error}</span>}
+        {tpvToggle}
+      </div>
+    );
   }
 
   return (
@@ -53,6 +77,7 @@ export default function MemberActions({ id, status }: { id: string; status: stri
       >
         {t('admin.members.reject')}
       </button>
+      {tpvToggle}
     </div>
   );
 }

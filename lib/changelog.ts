@@ -21,6 +21,23 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.4.0',
+    date: '2026-10-22',
+    sections: {
+      features: [
+        'TPV en efectiu per a la barra: caixa per torns, catàleg de productes i tiquets en pantalla',
+      ],
+      fixes: [],
+      internal: [],
+      es: {
+        features: [
+          'TPV en efectivo para la barra: caja por turnos, catálogo de productos y tickets en pantalla',
+        ],
+        fixes: [],
+      },
+    },
+  },
+  {
     version: '1.3.1',
     date: '2026-10-22',
     sections: {

@@ -17,7 +17,16 @@ export default async function AdminSocisPage() {
 
   const members = await prisma.members.findMany({
     orderBy: { created_at: 'desc' },
-    select: { id: true, name: true, email: true, phone: true, status: true, admin: true, created_at: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      status: true,
+      admin: true,
+      tpv_operator: true,
+      created_at: true,
+    },
   });
 
   return (
@@ -31,6 +40,7 @@ export default async function AdminSocisPage() {
               <th className="py-2 pr-4">{t.colEmail}</th>
               <th className="py-2 pr-4">{t.colStatus}</th>
               <th className="py-2 pr-4">{t.colAdmin}</th>
+              <th className="py-2 pr-4">TPV</th>
               <th className="py-2 pr-4">{t.colActions}</th>
             </tr>
           </thead>
@@ -41,8 +51,9 @@ export default async function AdminSocisPage() {
                 <td className="py-2 pr-4">{m.email}</td>
                 <td className="py-2 pr-4">{m.status}</td>
                 <td className="py-2 pr-4">{m.admin ? t.yes : t.no}</td>
+                <td className="py-2 pr-4">{m.tpv_operator ? t.yes : t.no}</td>
                 <td className="py-2 pr-4">
-                  <MemberActions id={m.id} status={m.status} />
+                  <MemberActions id={m.id} status={m.status} tpvOperator={m.tpv_operator} />
                 </td>
               </tr>
             ))}
