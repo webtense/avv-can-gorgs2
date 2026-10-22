@@ -8,6 +8,7 @@ interface Product {
   name: string;
   category: string | null;
   priceCents: number | null;
+  costCents: number | null;
   active: boolean;
   sort: number;
 }
@@ -28,6 +29,9 @@ function ProductRow({
   const [priceInput, setPriceInput] = useState(
     product.priceCents !== null ? (product.priceCents / 100).toFixed(2).replace('.', ',') : ''
   );
+  const [costInput, setCostInput] = useState(
+    product.costCents !== null ? (product.costCents / 100).toFixed(2).replace('.', ',') : ''
+  );
   const [active, setActive] = useState(product.active);
   const [sort, setSort] = useState(String(product.sort));
   const [saving, setSaving] = useState(false);
@@ -39,6 +43,8 @@ function ProductRow({
     try {
       const euros = priceInput.trim() ? Number(priceInput.replace(',', '.')) : null;
       const priceCents = euros === null ? null : Math.round(euros * 100);
+      const costEuros = costInput.trim() ? Number(costInput.replace(',', '.')) : null;
+      const costCents = costEuros === null ? null : Math.round(costEuros * 100);
 
       if (active && priceCents === null) {
         setError(t('admin.tpv.priceRequiredToActivate'));
@@ -52,6 +58,7 @@ function ProductRow({
           name,
           category: category || null,
           priceCents,
+          costCents,
           active,
           sort: Number(sort) || 0,
         }),
@@ -66,6 +73,7 @@ function ProductRow({
         name: data.product.name,
         category: data.product.category,
         priceCents: data.product.price_cents,
+        costCents: data.product.cost_cents,
         active: data.product.active,
         sort: data.product.sort,
       });
@@ -101,6 +109,15 @@ function ProductRow({
           value={priceInput}
           onChange={(e) => setPriceInput(e.target.value)}
           placeholder={t('admin.tpv.noPrice')}
+          inputMode="decimal"
+          className="w-24 rounded border border-slate-300 px-2 py-1 text-sm"
+        />
+      </td>
+      <td className="py-2 pr-2">
+        <input
+          value={costInput}
+          onChange={(e) => setCostInput(e.target.value)}
+          placeholder={t('admin.tpv.noCost')}
           inputMode="decimal"
           className="w-24 rounded border border-slate-300 px-2 py-1 text-sm"
         />
@@ -169,6 +186,7 @@ export default function ProductsAdmin({ initialProducts }: { initialProducts: Pr
             name: data.product.name,
             category: data.product.category,
             priceCents: data.product.price_cents,
+            costCents: data.product.cost_cents,
             active: data.product.active,
             sort: data.product.sort,
           },
@@ -190,6 +208,7 @@ export default function ProductsAdmin({ initialProducts }: { initialProducts: Pr
               <th className="py-2 pr-2">{t('admin.tpv.colName')}</th>
               <th className="py-2 pr-2">{t('admin.tpv.colCategory')}</th>
               <th className="py-2 pr-2">{t('admin.tpv.colPrice')}</th>
+              <th className="py-2 pr-2">{t('admin.tpv.colCost')}</th>
               <th className="py-2 pr-2">{t('admin.tpv.colActive')}</th>
               <th className="py-2 pr-2">{t('admin.tpv.colSort')}</th>
               <th className="py-2 pr-2">{t('admin.tpv.colActions')}</th>

@@ -3,6 +3,7 @@ import { getLocale, getMessages } from '@/lib/i18n';
 import ProductsAdmin from '@/components/admin/tpv/ProductsAdmin';
 import SessionsReport from '@/components/admin/tpv/SessionsReport';
 import BarEventsAdmin from '@/components/admin/tpv/BarEventsAdmin';
+import StockMovementsAdmin from '@/components/admin/tpv/StockMovementsAdmin';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,10 +57,13 @@ export default async function AdminTpvPage() {
           name: p.name,
           category: p.category,
           priceCents: p.price_cents,
+          costCents: p.cost_cents,
           active: p.active,
           sort: p.sort,
         }))}
       />
+
+      <StockMovementsAdmin products={products.map((p) => ({ id: p.id, name: p.name }))} />
 
       <BarEventsAdmin
         products={products
