@@ -24,8 +24,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Calcular versión de build
+        id: ver
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          SHA7=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          echo "build_id=${VERSION}-${SHA7}" >> "$GITHUB_OUTPUT"
+          echo "immutable=v${VERSION}-${SHA7}" >> "$GITHUB_OUTPUT"
+
       - uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:manual-${{ github.run_number }}
+          build-args: |
+            NEXT_PUBLIC_BUILD_ID=${{ steps.ver.outputs.build_id }}
+            BUILD_TIME=${{ github.event.head_commit.timestamp || '' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:manual-${{ github.run_number }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.ver.outputs.immutable }}
