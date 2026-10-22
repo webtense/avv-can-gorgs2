@@ -3,12 +3,20 @@ import { apiError } from '@/lib/i18n/api-error';
 import { prisma } from '@/lib/db';
 import { isSameOriginRequest } from '@/lib/csrf';
 import { getTpvOperator } from '@/lib/auth/session';
-import { computeSaleTotals, computeChange, resolveEventProductPriceCents, CashPaymentError } from '@/lib/tpv';
+import {
+  computeSaleTotals,
+  computeChange,
+  resolveEventProductPriceCents,
+  resolveGiftUnitValueCents,
+  CashPaymentError,
+} from '@/lib/tpv';
 
 interface CartItemInput {
   productId: string;
   qty: number;
   isFree?: boolean;
+  /** Valor unitari explícit del regal (cèntims), opcional. */
+  giftValueCents?: number | null;
 }
 
 /**
@@ -56,7 +64,13 @@ export async function POST(request: NextRequest) {
     const qty = Number(item?.qty);
     if (!productId) return apiError('invalidData', 400);
     if (!Number.isInteger(qty) || qty < 1) return apiError('tpvInvalidQty', 400);
-    normalizedItems.push({ productId, qty, isFree: Boolean(item?.isFree) });
+    let giftValueCents: number | null = null;
+    if (item?.giftValueCents !== undefined && item.giftValueCents !== null) {
+      const v = Number(item.giftValueCents);
+      if (!Number.isInteger(v) || v < 0) return apiError('tpvInvalidAmount', 400);
+      giftValueCents = v;
+    }
+    normalizedItems.push({ productId, qty, isFree: Boolean(item?.isFree), giftValueCents });
   }
 
   const productIds = normalizedItems.map((i) => i.productId);
@@ -102,12 +116,19 @@ export async function POST(request: NextRequest) {
       return apiError('tpvProductInactive', 400);
     }
 
+    let giftValueCents: number | null = null;
+    if (item.isFree) {
+      giftValueCents = resolveGiftUnitValueCents(item.giftValueCents, product.cost_cents, unitPriceCents);
+    }
+
     lines.push({
       productId: product.id,
       name: product.name,
       unitPriceCents,
       qty: item.qty,
       isFree: item.isFree,
+      giftValueCents,
+      costCents: product.cost_cents,
     });
   }
 
@@ -123,25 +144,50 @@ export async function POST(request: NextRequest) {
     throw err;
   }
 
-  const sale = await prisma.tpv_sales.create({
-    data: {
-      session_id: session.id,
-      operator_id: operator.id,
-      total_cents: totals.totalCents,
-      paid_cents: paidCents,
-      change_cents: changeCents,
-      lines: {
-        create: totals.lines.map((l) => ({
-          product_id: l.productId,
-          name: l.name,
-          unit_price_cents: l.unitPriceCents,
-          qty: l.qty,
-          line_total_cents: l.lineTotalCents,
-          is_free: Boolean(l.isFree),
-        })),
+  const sale = await prisma.$transaction(async (tx) => {
+    const created = await tx.tpv_sales.create({
+      data: {
+        session_id: session.id,
+        operator_id: operator.id,
+        total_cents: totals.totalCents,
+        paid_cents: paidCents,
+        change_cents: changeCents,
+        lines: {
+          create: totals.lines.map((l) => ({
+            product_id: l.productId,
+            name: l.name,
+            unit_price_cents: l.unitPriceCents,
+            qty: l.qty,
+            line_total_cents: l.lineTotalCents,
+            is_free: Boolean(l.isFree),
+            gift_value_cents: l.isFree ? l.giftValueCents : null,
+          })),
+        },
       },
-    },
-    include: { lines: true },
+      include: { lines: true },
+    });
+
+    // Cada línia genera automàticament un moviment d'estoc (venta o regalo).
+    // Mai es registren des d'aquí entrades/sortides manuals.
+    await tx.tpv_stock_movements.createMany({
+      data: totals.lines.map((l) => {
+        const totalCostCents = l.costCents != null ? l.qty * l.costCents : null;
+        const totalValueCents = l.isFree && l.giftValueCents != null ? l.qty * l.giftValueCents : null;
+        return {
+          product_id: l.productId,
+          event_id: session.event_id,
+          session_id: session.id,
+          type: l.isFree ? 'regalo' : 'venta',
+          qty: l.qty,
+          unit_cost_cents: l.costCents ?? null,
+          unit_value_cents: l.isFree ? l.giftValueCents : null,
+          total_cost_cents: totalCostCents,
+          total_value_cents: totalValueCents,
+        };
+      }),
+    });
+
+    return created;
   });
 
   return NextResponse.json({ sale });
