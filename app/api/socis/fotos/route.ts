@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError } from '@/lib/i18n/api-error';
 import { prisma } from '@/lib/db';
 import { isSameOriginRequest } from '@/lib/csrf';
 import { getActiveMember } from '@/lib/auth/session';
 import { MAX_FILES_PER_UPLOAD, MAX_FILE_SIZE, saveUploadedFile, sniffImageType } from '@/lib/uploads';
+import { getLocale, getMessages } from '@/lib/i18n';
 
 export async function GET() {
   const member = await getActiveMember();
   if (!member) {
-    return NextResponse.json({ error: 'No autoritzat.' }, { status: 403 });
+    return apiError('notAuthorized', 403);
   }
   const photos = await prisma.event_photos.findMany({
     where: { uploaded_by: member.id },
@@ -20,10 +22,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const member = await getActiveMember();
   if (!member) {
-    return NextResponse.json({ error: 'Cal ser soci actiu per pujar fotos.' }, { status: 403 });
+    return apiError('mustBeActiveMember', 403);
   }
   if (!isSameOriginRequest(request)) {
-    return NextResponse.json({ error: 'Sol·licitud no vàlida.' }, { status: 403 });
+    return apiError('invalidRequest', 403);
   }
 
   const form = await request.formData();
@@ -34,19 +36,16 @@ export async function POST(request: NextRequest) {
   const caption = typeof captionRaw === 'string' ? captionRaw.slice(0, 500) : null;
 
   if (files.length === 0) {
-    return NextResponse.json({ error: 'Cal seleccionar com a mínim una imatge.' }, { status: 400 });
+    return apiError('noImageSelected', 400);
   }
   if (files.length > MAX_FILES_PER_UPLOAD) {
-    return NextResponse.json(
-      { error: `Només es poden pujar ${MAX_FILES_PER_UPLOAD} imatges per enviament.` },
-      { status: 400 }
-    );
+    return apiError('tooManyFiles', 400, { max: MAX_FILES_PER_UPLOAD });
   }
 
   if (eventId) {
     const event = await prisma.events.findUnique({ where: { id: eventId } });
     if (!event) {
-      return NextResponse.json({ error: 'Acte no trobat.' }, { status: 404 });
+      return apiError('eventNotFound', 404);
     }
   }
 
@@ -54,18 +53,12 @@ export async function POST(request: NextRequest) {
 
   for (const file of files) {
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { error: `La imatge "${file.name}" supera els 10 MB.` },
-        { status: 400 }
-      );
+      return apiError('fileTooLarge', 400, { name: file.name });
     }
     const buffer = Buffer.from(await file.arrayBuffer());
     const sniffed = sniffImageType(buffer);
     if (!sniffed) {
-      return NextResponse.json(
-        { error: `"${file.name}" no és una imatge JPEG, PNG o WebP vàlida.` },
-        { status: 400 }
-      );
+      return apiError('invalidFileType', 400, { name: file.name });
     }
 
     const fileName = await saveUploadedFile(buffer, sniffed.ext);
@@ -84,9 +77,10 @@ export async function POST(request: NextRequest) {
     created.push(photo.id);
   }
 
+  const messages = getMessages(await getLocale());
   return NextResponse.json({
     ok: true,
-    message: 'Fotos pujades. Quedaran pendents de revisió per la junta abans de ser públiques.',
+    message: messages.apiErrors.photosUploaded,
     ids: created,
   });
 }

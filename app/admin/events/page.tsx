@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
   const locale = await getLocale();
   const messages = getMessages(locale);
-  return { title: `${messages.admin.events.title} · Administració` };
+  return { title: `${messages.admin.events.title} · ${messages.admin.home.title}` };
 }
 
 export default async function AdminEventsPage() {
