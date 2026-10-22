@@ -21,6 +21,29 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.3.1',
+    date: '2026-10-22',
+    sections: {
+      features: [
+        'Eslògans de marca ("Més que un barri" · "Des de 1984") a la portada i al peu de pàgina',
+        'Nova pàgina de socis per canviar la contrasenya',
+      ],
+      fixes: [
+        "Les fotos pujades per socis s'eliminen de metadades EXIF (incloent la ubicació GPS) abans de desar-se",
+      ],
+      internal: [],
+      es: {
+        features: [
+          'Eslóganes de marca ("Más que un barrio" · "Desde 1984") en la portada y en el pie de página',
+          'Nueva página de socios para cambiar la contraseña',
+        ],
+        fixes: [
+          'Las fotos subidas por socios se eliminan de metadatos EXIF (incluida la ubicación GPS) antes de guardarse',
+        ],
+      },
+    },
+  },
+  {
     version: '1.3.0',
     date: '2026-10-22',
     sections: {

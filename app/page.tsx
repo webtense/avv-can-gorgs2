@@ -20,6 +20,9 @@ export default function Home() {
             <p className="mt-4 text-base text-white/90 sm:text-lg">
               {t('home.subtitle')}
             </p>
+            <p className="mt-3 font-serif text-base italic text-secondary sm:text-lg">
+              {t('common.brand.slogan')} · {t('common.brand.since')}
+            </p>
             <div className="mt-8">
               <Link
                 href="/archive"

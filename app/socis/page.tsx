@@ -68,6 +68,10 @@ export default async function SocisPage() {
           {t.uploadPhotos}
         </Link>
         .{' '}
+        <Link href="/socis/contrasenya" className="text-primary underline">
+          {messages.canviaContrasenya.linkLabel}
+        </Link>
+        .{' '}
         {member.admin && (
           <>
             {' '}

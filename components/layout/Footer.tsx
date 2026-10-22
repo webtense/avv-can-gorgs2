@@ -20,6 +20,9 @@ export default async function Footer() {
             <p className="mt-2 text-sm text-slate-400">
               {t.footer.tagline}
             </p>
+            <p className="mt-2 text-sm italic text-slate-400">
+              {t.brand.slogan} · {t.brand.since}
+            </p>
           </div>
 
           <div>

@@ -3,7 +3,13 @@ import { apiError } from '@/lib/i18n/api-error';
 import { prisma } from '@/lib/db';
 import { isSameOriginRequest } from '@/lib/csrf';
 import { getActiveMember } from '@/lib/auth/session';
-import { MAX_FILES_PER_UPLOAD, MAX_FILE_SIZE, saveUploadedFile, sniffImageType } from '@/lib/uploads';
+import {
+  MAX_FILES_PER_UPLOAD,
+  MAX_FILE_SIZE,
+  saveUploadedFile,
+  sniffImageType,
+  stripImageMetadata,
+} from '@/lib/uploads';
 import { getLocale, getMessages } from '@/lib/i18n';
 
 export async function GET() {
@@ -61,7 +67,14 @@ export async function POST(request: NextRequest) {
       return apiError('invalidFileType', 400, { name: file.name });
     }
 
-    const fileName = await saveUploadedFile(buffer, sniffed.ext);
+    let cleanBuffer: Buffer;
+    try {
+      cleanBuffer = await stripImageMetadata(buffer, sniffed.mime);
+    } catch {
+      return apiError('imageProcessingFailed', 400, { name: file.name });
+    }
+
+    const fileName = await saveUploadedFile(cleanBuffer, sniffed.ext);
 
     const photo = await prisma.event_photos.create({
       data: {
@@ -69,7 +82,7 @@ export async function POST(request: NextRequest) {
         uploaded_by: member.id,
         file_name: fileName,
         mime_type: sniffed.mime,
-        size_bytes: buffer.length,
+        size_bytes: cleanBuffer.length,
         caption,
         approved: false,
       },
