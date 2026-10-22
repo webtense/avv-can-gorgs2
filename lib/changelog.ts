@@ -21,7 +21,7 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
-    version: '1.5.0',
+    version: '1.5.2',
     date: '2026-10-22',
     sections: {
       features: [
@@ -36,6 +36,29 @@ export const CHANGELOG: ChangelogEntry[] = [
           'Eventos de barra en el TPV: catálogo y precios propios por evento (Paella, fiestas…), selección del evento activo al abrir caja',
           'Líneas de venta marcadas como "Gratis" (regalo): no suman a la recaudación pero quedan registradas para el informe',
           'Informe final por evento de barra con exportación a CSV: unidades vendidas y regaladas, recaudación, valor de los regalos, ticket medio',
+        ],
+        fixes: [],
+      },
+    },
+  },
+  {
+    version: '1.5.1',
+    date: '2026-10-23',
+    sections: {
+      features: [
+        'Nou mòdul de correu per a socis a /admin/correu: plantilles, enviament individual o a tots els socis actius, adjunts PDF i historial d\'enviaments',
+        'Enviament via Brevo (API REST), amb previsualització i confirmació obligatòria abans d\'enviar',
+        'Els socis poden excloure\'s de les comunicacions informatives; aquesta exclusió es respecta sempre',
+      ],
+      fixes: [],
+      internal: [
+        'Noves taules mail_templates i mail_log, i columna members.mail_opt_out (migració aditiva)',
+      ],
+      es: {
+        features: [
+          'Nuevo módulo de correo para socios en /admin/correu: plantillas, envío individual o a todos los socios activos, adjuntos PDF e historial de envíos',
+          'Envío vía Brevo (API REST), con previsualización y confirmación obligatoria antes de enviar',
+          'Los socios pueden excluirse de las comunicaciones informativas; esta exclusión se respeta siempre',
         ],
         fixes: [],
       },
