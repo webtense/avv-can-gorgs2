@@ -31,6 +31,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     name?: string;
     category?: string | null;
     price_cents?: number | null;
+    cost_cents?: number | null;
     active?: boolean;
     sort?: number;
   } = {};
@@ -52,6 +53,17 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         return apiError('tpvInvalidAmount', 400);
       }
       data.price_cents = priceCents;
+    }
+  }
+  if (body.costCents !== undefined) {
+    if (body.costCents === null) {
+      data.cost_cents = null;
+    } else {
+      const costCents = Number(body.costCents);
+      if (!Number.isInteger(costCents) || costCents < 0) {
+        return apiError('tpvInvalidAmount', 400);
+      }
+      data.cost_cents = costCents;
     }
   }
   if (body.sort !== undefined) {

@@ -17,6 +17,8 @@ interface CartEntry {
   product: TpvProduct;
   qty: number;
   isFree: boolean;
+  /** Valor unitari propi del regal introduït per l'operador (euros, text lliure). */
+  giftValueInput: string;
 }
 
 interface CompletedSale {
@@ -51,7 +53,12 @@ export default function TpvClient({
       const existing = prev[product.id];
       return {
         ...prev,
-        [product.id]: { product, qty: (existing?.qty ?? 0) + 1, isFree: existing?.isFree ?? false },
+        [product.id]: {
+          product,
+          qty: (existing?.qty ?? 0) + 1,
+          isFree: existing?.isFree ?? false,
+          giftValueInput: existing?.giftValueInput ?? '',
+        },
       };
     });
   }
@@ -61,6 +68,14 @@ export default function TpvClient({
       const existing = prev[productId];
       if (!existing) return prev;
       return { ...prev, [productId]: { ...existing, isFree: !existing.isFree } };
+    });
+  }
+
+  function setGiftValueInput(productId: string, value: string) {
+    setCart((prev) => {
+      const existing = prev[productId];
+      if (!existing) return prev;
+      return { ...prev, [productId]: { ...existing, giftValueInput: value } };
     });
   }
 
@@ -132,7 +147,7 @@ export default function TpvClient({
           <p className="mt-4 text-sm text-slate-500">{t('tpv.sale.empty')}</p>
         ) : (
           <ul className="mt-4 space-y-3">
-            {cartEntries.map(({ product, qty, isFree }) => (
+            {cartEntries.map(({ product, qty, isFree, giftValueInput }) => (
               <li key={product.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2 last:border-0">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-slate-900">{product.name}</p>
@@ -168,6 +183,18 @@ export default function TpvClient({
                   />
                   {t('tpv.sale.free')}
                 </label>
+                {isFree && (
+                  <div className="w-full">
+                    <label className="block text-xs font-medium text-slate-600">{t('tpv.sale.giftValueLabel')}</label>
+                    <input
+                      value={giftValueInput}
+                      onChange={(e) => setGiftValueInput(product.id, e.target.value)}
+                      placeholder={t('tpv.sale.giftValuePlaceholder')}
+                      inputMode="decimal"
+                      className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-xs"
+                    />
+                  </div>
+                )}
               </li>
             ))}
           </ul>

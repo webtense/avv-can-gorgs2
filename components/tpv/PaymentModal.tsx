@@ -8,6 +8,7 @@ interface CartEntry {
   product: { id: string; name: string; priceCents: number };
   qty: number;
   isFree: boolean;
+  giftValueInput?: string;
 }
 
 export default function PaymentModal({
@@ -65,7 +66,12 @@ export default function PaymentModal({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: cartEntries.map((e) => ({ productId: e.product.id, qty: e.qty, isFree: e.isFree })),
+          items: cartEntries.map((e) => {
+            const giftValueEuros = e.isFree && e.giftValueInput?.trim() ? Number(e.giftValueInput.replace(',', '.')) : null;
+            const giftValueCents =
+              giftValueEuros !== null && Number.isFinite(giftValueEuros) ? Math.round(giftValueEuros * 100) : undefined;
+            return { productId: e.product.id, qty: e.qty, isFree: e.isFree, giftValueCents };
+          }),
           paidCents,
         }),
       });

@@ -17,10 +17,28 @@ interface SessionReport {
   giftUnitsByProduct: Record<string, number>;
 }
 
+interface ProductCostReportRow {
+  productKey: string;
+  outUnits: number;
+  soldUnits: number;
+  revenueCents: number;
+  giftUnits: number;
+  giftCostCents: number;
+  giftValueCents: number;
+  soldCostCents: number;
+  marginCents: number;
+}
+
+interface ProductReport {
+  rows: ProductCostReportRow[];
+  total: ProductCostReportRow & { grossValueDeliveredCents: number };
+}
+
 interface ReportData {
   event: { id: string; title: string; eventDate: string | null };
   sessions: SessionReport[];
   total: Omit<SessionReport, 'sessionId' | 'operatorName' | 'openedAt' | 'closedAt'>;
+  productReport: ProductReport;
 }
 
 /**
@@ -125,6 +143,83 @@ export default function BarEventReport({ eventId, onClose }: { eventId: string; 
                 ))}
               </tbody>
             </table>
+          </div>
+
+          <div className="mt-6">
+            <h4 className="font-medium text-slate-900">{t('admin.tpv.barEvents.productReportTitle')}</h4>
+            <div className="mt-2 overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200 text-sm">
+                <thead>
+                  <tr className="text-left text-slate-500">
+                    <th className="py-2 pr-2">{t('admin.tpv.colName')}</th>
+                    <th className="py-2 pr-2">{t('admin.tpv.barEvents.colUnitsOut')}</th>
+                    <th className="py-2 pr-2">{t('admin.tpv.barEvents.colUnitsSold')}</th>
+                    <th className="py-2 pr-2">{t('admin.tpv.barEvents.colRevenue')}</th>
+                    <th className="py-2 pr-2">{t('admin.tpv.barEvents.colUnitsGifted')}</th>
+                    <th className="py-2 pr-2">{t('admin.tpv.barEvents.colGiftCost')}</th>
+                    <th className="py-2 pr-2">{t('admin.tpv.barEvents.colGiftValue')}</th>
+                    <th className="py-2 pr-2">{t('admin.tpv.barEvents.colSoldCost')}</th>
+                    <th className="py-2 pr-2">{t('admin.tpv.barEvents.colMargin')}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {data.productReport.rows.map((row) => (
+                    <tr key={row.productKey}>
+                      <td className="py-2 pr-2">{row.productKey}</td>
+                      <td className="py-2 pr-2">{row.outUnits}</td>
+                      <td className="py-2 pr-2">{row.soldUnits}</td>
+                      <td className="py-2 pr-2">{formatCents(row.revenueCents)}</td>
+                      <td className="py-2 pr-2">{row.giftUnits}</td>
+                      <td className="py-2 pr-2 text-emerald-700">{formatCents(row.giftCostCents)}</td>
+                      <td className="py-2 pr-2 text-emerald-700">{formatCents(row.giftValueCents)}</td>
+                      <td className="py-2 pr-2">{formatCents(row.soldCostCents)}</td>
+                      <td className="py-2 pr-2">{formatCents(row.marginCents)}</td>
+                    </tr>
+                  ))}
+                  <tr className="font-bold">
+                    <td className="py-2 pr-2">{t('admin.tpv.barEvents.total')}</td>
+                    <td className="py-2 pr-2">{data.productReport.total.outUnits}</td>
+                    <td className="py-2 pr-2">{data.productReport.total.soldUnits}</td>
+                    <td className="py-2 pr-2">{formatCents(data.productReport.total.revenueCents)}</td>
+                    <td className="py-2 pr-2">{data.productReport.total.giftUnits}</td>
+                    <td className="py-2 pr-2 text-emerald-700">{formatCents(data.productReport.total.giftCostCents)}</td>
+                    <td className="py-2 pr-2 text-emerald-700">{formatCents(data.productReport.total.giftValueCents)}</td>
+                    <td className="py-2 pr-2">{formatCents(data.productReport.total.soldCostCents)}</td>
+                    <td className="py-2 pr-2">{formatCents(data.productReport.total.marginCents)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <h4 className="font-medium text-slate-900">{t('admin.tpv.barEvents.summaryTitle')}</h4>
+            <dl className="mt-2 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+              <div className="flex justify-between">
+                <dt className="text-slate-600">{t('admin.tpv.barEvents.summaryRevenue')}</dt>
+                <dd className="font-medium">{formatCents(data.productReport.total.revenueCents)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-slate-600">{t('admin.tpv.barEvents.summarySoldCost')}</dt>
+                <dd className="font-medium">{formatCents(data.productReport.total.soldCostCents)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-slate-600">{t('admin.tpv.barEvents.summaryGiftCost')}</dt>
+                <dd className="font-medium text-emerald-700">{formatCents(data.productReport.total.giftCostCents)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-slate-600">{t('admin.tpv.barEvents.summaryGiftValue')}</dt>
+                <dd className="font-medium text-emerald-700">{formatCents(data.productReport.total.giftValueCents)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-slate-600">{t('admin.tpv.barEvents.summaryMargin')}</dt>
+                <dd className="font-bold">{formatCents(data.productReport.total.marginCents)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-slate-600">{t('admin.tpv.barEvents.summaryGrossValue')}</dt>
+                <dd className="font-bold">{formatCents(data.productReport.total.grossValueDeliveredCents)}</dd>
+              </div>
+            </dl>
           </div>
         </>
       )}
