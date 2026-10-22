@@ -10,6 +10,23 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.0.1',
+    date: '2026-10-22',
+    sections: {
+      features: [
+        'Menú y páginas de la web: L\'associació, Contacte, Avís legal, Política de privacitat y Política de cookies',
+        'Mensaje claro en el archivo cuando todavía no hay contenido publicado',
+      ],
+      fixes: [
+        'La ficha de un elemento del archivo ya carga correctamente en producción',
+      ],
+      internal: [
+        'lib/archive-detail.ts: la lógica de detalle se comparte entre la API y la página, sin llamadas HTTP internas',
+        'lib/site-config.ts: datos de la asociación y menús en un único fichero',
+      ],
+    },
+  },
+  {
     version: '1.0.0',
     date: '2026-10-21',
     sections: {

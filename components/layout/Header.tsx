@@ -3,13 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import VersionBadge from '@/components/common/VersionBadge';
+import { navigation } from '@/lib/site-config';
 
-const NAV_LINKS = [
-  { href: '/', label: 'Inici' },
-  { href: '/archive', label: 'Arxiu' },
-  { href: '/about', label: 'Qui som' },
-  { href: '/contact', label: 'Contacte' },
-];
 
 interface HeaderProps {
   version?: string;
@@ -39,7 +34,7 @@ export default function Header({ version = '0.6.0-BETA' }: HeaderProps) {
             aria-label="Navegació principal"
             className="hidden md:flex items-center gap-8"
           >
-            {NAV_LINKS.map((link) => (
+            {navigation.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -95,7 +90,7 @@ export default function Header({ version = '0.6.0-BETA' }: HeaderProps) {
             aria-label="Navegació mòbil"
             className="md:hidden pb-4 flex flex-col gap-1"
           >
-            {NAV_LINKS.map((link) => (
+            {navigation.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

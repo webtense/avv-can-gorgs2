@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-const FOUNDING_YEAR = 1978;
+import { siteConfig, footerLegal } from '@/lib/site-config';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -13,9 +13,13 @@ export default function Footer() {
             <h2 className="font-serif text-lg text-white">
               Associació de Veïns Can Gorgs II
             </h2>
+            {siteConfig.foundedYear && (
+              <p className="mt-2 text-sm text-slate-400">
+                Fundada l&apos;any {siteConfig.foundedYear}.
+              </p>
+            )}
             <p className="mt-2 text-sm text-slate-400">
-              Fundada l&apos;any {FOUNDING_YEAR}. Preservant la memòria
-              històrica del barri des de fa més de quatre dècades.
+              Preservant la memòria històrica del barri.
             </p>
           </div>
 
@@ -24,15 +28,15 @@ export default function Footer() {
               Contacte
             </h3>
             <ul className="mt-2 space-y-1 text-sm">
-              <li>
-                <a
-                  href="mailto:info@cangorgs2.cat"
-                  className="hover:text-white transition-colors"
-                >
-                  info@cangorgs2.cat
-                </a>
-              </li>
-              <li className="text-slate-400">Can Gorgs II, Barcelona</li>
+              {siteConfig.email && (
+                <li>
+                  <a href={`mailto:${siteConfig.email}`} className="hover:text-white transition-colors">
+                    {siteConfig.email}
+                  </a>
+                </li>
+              )}
+              {siteConfig.phone && <li className="text-slate-400">{siteConfig.phone}</li>}
+              {siteConfig.address && <li className="text-slate-400">{siteConfig.address}</li>}
             </ul>
           </div>
 
@@ -41,36 +45,17 @@ export default function Footer() {
               Enllaços
             </h3>
             <ul className="mt-2 space-y-1 text-sm">
-              <li>
-                <Link href="/privacy" className="hover:text-white transition-colors">
-                  Política de privacitat
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="hover:text-white transition-colors">
-                  Avís legal
-                </Link>
-              </li>
+              {footerLegal.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="hover:text-white transition-colors">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <Link href="/changelog" className="hover:text-white transition-colors">
                   Historial de versions
                 </Link>
-              </li>
-              <li className="flex gap-3 pt-2">
-                <a
-                  href="https://facebook.com"
-                  aria-label="Facebook de l'associació"
-                  className="hover:text-white transition-colors"
-                >
-                  Facebook
-                </a>
-                <a
-                  href="https://instagram.com"
-                  aria-label="Instagram de l'associació"
-                  className="hover:text-white transition-colors"
-                >
-                  Instagram
-                </a>
               </li>
             </ul>
           </div>
