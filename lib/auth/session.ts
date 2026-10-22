@@ -79,6 +79,7 @@ export interface CurrentMember {
   email: string;
   status: string;
   admin: boolean;
+  tpv_operator: boolean;
 }
 
 /** Retorna el soci de la sessió actual, o null si no hi ha sessió vàlida. */
@@ -98,6 +99,7 @@ export async function getCurrentMember(): Promise<CurrentMember | null> {
     email: member.email,
     status: member.status,
     admin: member.admin,
+    tpv_operator: member.tpv_operator,
   };
 }
 
@@ -110,5 +112,13 @@ export async function getActiveMember(): Promise<CurrentMember | null> {
 export async function getAdminMember(): Promise<CurrentMember | null> {
   const member = await getCurrentMember();
   if (!member || member.status !== 'actiu' || !member.admin) return null;
+  return member;
+}
+
+/** Retorna el soci actual si és operador de TPV (o admin), o null. */
+export async function getTpvOperator(): Promise<CurrentMember | null> {
+  const member = await getCurrentMember();
+  if (!member || member.status !== 'actiu') return null;
+  if (!member.admin && !member.tpv_operator) return null;
   return member;
 }

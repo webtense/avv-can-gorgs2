@@ -18,6 +18,7 @@ export async function GET() {
       phone: true,
       status: true,
       admin: true,
+      tpv_operator: true,
       created_at: true,
     },
   });
@@ -42,8 +43,20 @@ export async function PATCH(request: NextRequest) {
 
   const id = String(body.id || '');
   const action = String(body.action || '');
-  if (!id || !['aprovar', 'rebutjar'].includes(action)) {
+  if (!id || !['aprovar', 'rebutjar', 'toggle_tpv_operator'].includes(action)) {
     return apiError('invalidQuery', 400);
+  }
+
+  if (action === 'toggle_tpv_operator') {
+    const current = await prisma.members.findUnique({ where: { id }, select: { tpv_operator: true } });
+    if (!current) {
+      return apiError('invalidQuery', 404);
+    }
+    const member = await prisma.members.update({
+      where: { id },
+      data: { tpv_operator: !current.tpv_operator },
+    });
+    return NextResponse.json({ ok: true, member: { id: member.id, tpv_operator: member.tpv_operator } });
   }
 
   const status = action === 'aprovar' ? 'actiu' : 'rebutjat';
