@@ -10,6 +10,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.0.2',
+    date: '2026-10-22',
+    sections: {
+      features: [],
+      fixes: [
+        'La versión que se muestra en la web coincide con la versión publicada',
+      ],
+      internal: [
+        'lib/version.ts lee la versión de package.json en lugar de un valor fijo',
+      ],
+    },
+  },
+  {
     version: '1.0.1',
     date: '2026-10-22',
     sections: {

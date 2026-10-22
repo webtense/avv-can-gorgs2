@@ -1,3 +1,5 @@
+import packageJson from '../package.json';
+
 export interface VersionInfo {
   version: string;
   buildId: string;
@@ -5,7 +7,7 @@ export interface VersionInfo {
 }
 
 export function getVersion(): VersionInfo {
-  const version = '1.0.0'; // lee de package.json en build
+  const version = packageJson.version;
   const buildId = process.env.NEXT_PUBLIC_BUILD_ID || 'dev-local';
   const buildTime = process.env.BUILD_TIME || new Date().toISOString();
   return { version, buildId, buildTime };
