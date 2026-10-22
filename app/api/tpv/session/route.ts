@@ -42,6 +42,16 @@ export async function POST(request: NextRequest) {
     return apiError('tpvInvalidAmount', 400);
   }
 
+  // Acte de barra actiu (opcional): "ningú / barra habitual" si no s'envia.
+  let eventId: string | null = null;
+  if (body.eventId !== undefined && body.eventId !== null && body.eventId !== '') {
+    eventId = String(body.eventId);
+    const hasCatalog = await prisma.tpv_event_products.findFirst({ where: { event_id: eventId } });
+    if (!hasCatalog) {
+      return apiError('tpvEventNotFound', 404);
+    }
+  }
+
   const existing = await prisma.cash_sessions.findFirst({ where: { closed_at: null } });
   if (existing) {
     return apiError('tpvSessionAlreadyOpen', 409);
@@ -51,6 +61,7 @@ export async function POST(request: NextRequest) {
     data: {
       opened_by: operator.id,
       opening_float_cents: openingFloatCents,
+      event_id: eventId,
     },
   });
 
