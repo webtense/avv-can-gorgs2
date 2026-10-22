@@ -35,6 +35,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         <Link href="/admin/correu" className="text-primary underline">
           {t.correu}
         </Link>
+        <Link href="/admin/comptabilitat" className="text-primary underline">
+          {t.comptabilitat}
+        </Link>
       </nav>
       {children}
     </div>
