@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/db';
 import EventFlagsForm from '@/components/admin/EventFlagsForm';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = { title: 'Actes · Administració' };
 
 export default async function AdminEventsPage() {

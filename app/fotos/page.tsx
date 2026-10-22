@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/db';
 import PageShell from '@/components/common/PageShell';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = { title: 'Fotos dels socis · AVV Can Gorgs II' };
 
 export default async function FotosPage() {

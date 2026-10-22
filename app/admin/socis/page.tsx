@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/db';
 import MemberActions from '@/components/admin/MemberActions';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = { title: 'Socis · Administració' };
 
 export default async function AdminSocisPage() {

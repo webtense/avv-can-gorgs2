@@ -4,6 +4,8 @@ import { getCurrentMember } from '@/lib/auth/session';
 import PageShell from '@/components/common/PageShell';
 import ReservationForm from '@/components/socis/ReservationForm';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = { title: 'Agenda · AVV Can Gorgs II' };
 
 export default async function AgendaPage() {

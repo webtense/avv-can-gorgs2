@@ -4,6 +4,8 @@ import { getActiveMember } from '@/lib/auth/session';
 import PageShell from '@/components/common/PageShell';
 import PhotoUploadForm from '@/components/socis/PhotoUploadForm';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = { title: 'Puja fotos · AVV Can Gorgs II' };
 
 export default async function PujarFotosPage() {

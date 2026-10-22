@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/db';
 import PhotoModerationActions from '@/components/admin/PhotoModerationActions';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = { title: 'Fotos · Administració' };
 
 export default async function AdminFotosPage() {
