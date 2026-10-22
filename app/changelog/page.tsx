@@ -1,22 +1,31 @@
-import { CHANGELOG } from '@/lib/changelog';
+import { getChangelog } from '@/lib/changelog';
+import { getLocale, getMessages } from '@/lib/i18n';
 
-export const metadata = {
-  title: 'Historial de versiones — Arxiu Can Gorgs II',
-};
+export async function generateMetadata() {
+  const locale = await getLocale();
+  const messages = getMessages(locale);
+  return {
+    title: `${messages.changelog.title} — ${locale === 'es' ? 'Archivo' : 'Arxiu'} Can Gorgs II`,
+  };
+}
 
-export default function ChangelogPage() {
+export default async function ChangelogPage() {
+  const locale = await getLocale();
+  const messages = getMessages(locale);
+  const t = messages.changelog;
+  const entries = getChangelog(locale);
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
       <h1 className="font-serif text-2xl font-bold text-slate-900 sm:text-3xl">
-        Historial de versiones
+        {t.title}
       </h1>
       <p className="mt-2 max-w-2xl text-sm text-slate-600">
-        Novedades y correcciones de cada versión publicada de l&apos;Arxiu
-        Històric Can Gorgs II.
+        {t.subtitle}
       </p>
 
       <div className="mt-8 space-y-8">
-        {CHANGELOG.map((entry) => (
+        {entries.map((entry) => (
           <article
             key={entry.version}
             className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
@@ -28,26 +37,26 @@ export default function ChangelogPage() {
               <span className="text-sm text-slate-400">{entry.date}</span>
             </div>
 
-            {entry.sections.features.length > 0 && (
+            {entry.features.length > 0 && (
               <div className="mt-4">
                 <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
-                  Novedades
+                  {t.features}
                 </h3>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-600">
-                  {entry.sections.features.map((feature) => (
+                  {entry.features.map((feature) => (
                     <li key={feature}>{feature}</li>
                   ))}
                 </ul>
               </div>
             )}
 
-            {entry.sections.fixes.length > 0 && (
+            {entry.fixes.length > 0 && (
               <div className="mt-4">
                 <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
-                  Correcciones
+                  {t.fixes}
                 </h3>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-600">
-                  {entry.sections.fixes.map((fix) => (
+                  {entry.fixes.map((fix) => (
                     <li key={fix}>{fix}</li>
                   ))}
                 </ul>

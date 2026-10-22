@@ -3,34 +3,43 @@ import { prisma } from '@/lib/db';
 import { getCurrentMember } from '@/lib/auth/session';
 import PageShell from '@/components/common/PageShell';
 import ReservationForm from '@/components/socis/ReservationForm';
+import { getLocale, getMessages } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = { title: 'Zona de socis · AVV Can Gorgs II' };
+export async function generateMetadata() {
+  const locale = await getLocale();
+  const messages = getMessages(locale);
+  return { title: `${messages.socis.restrictedTitle} · AVV Can Gorgs II` };
+}
 
 export default async function SocisPage() {
   const member = await getCurrentMember();
+  const locale = await getLocale();
+  const messages = getMessages(locale);
+  const t = messages.socis;
+  const dateLocale = locale === 'es' ? 'es-ES' : 'ca-ES';
 
   if (!member || member.status !== 'actiu') {
     return (
-      <PageShell title="Zona de socis">
-        <p>Aquesta secció és només per a socis amb el compte actiu.</p>
+      <PageShell title={t.restrictedTitle}>
+        <p>{t.restrictedOnly}</p>
         <p>
           <Link href="/socis/login" className="text-primary underline">
-            Inicia sessió
+            {t.login}
           </Link>{' '}
-          o{' '}
+          {t.or}{' '}
           <Link href="/socis/registre" className="text-primary underline">
-            fes-te soci
+            {t.becomeMember}
           </Link>{' '}
-          per accedir-hi.
+          {t.toAccess}
         </p>
         <p>
-          Mentrestant pots consultar l&apos;{' '}
+          {t.meanwhile}{' '}
           <Link href="/agenda" className="text-primary underline">
-            agenda pública d&apos;actes
+            {t.publicAgenda}
           </Link>
-          .
+          {t.period}
         </p>
       </PageShell>
     );
@@ -52,25 +61,25 @@ export default async function SocisPage() {
   ]);
 
   return (
-    <PageShell title={`Hola, ${member.name}`}>
+    <PageShell title={t.hello.replace('{name}', member.name)}>
       <p>
-        Benvingut/da a la zona de socis.{' '}
+        {t.welcome}{' '}
         <Link href="/socis/fotos/pujar" className="text-primary underline">
-          Puja fotos d&apos;actes
+          {t.uploadPhotos}
         </Link>
         .{' '}
         {member.admin && (
           <>
             {' '}
             <Link href="/admin" className="text-primary underline">
-              Panell d&apos;administració
+              {t.adminPanel}
             </Link>
           </>
         )}
       </p>
 
-      <h2 className="pt-4 font-serif text-2xl font-semibold text-slate-900">Propers actes</h2>
-      {events.length === 0 && <p>No hi ha actes programats properament.</p>}
+      <h2 className="pt-4 font-serif text-2xl font-semibold text-slate-900">{t.upcomingEventsTitle}</h2>
+      {events.length === 0 && <p>{t.noUpcoming}</p>}
       <ul className="space-y-6">
         {events.map((event) => (
           <li key={event.id} className="rounded-md border border-slate-200 p-4">
@@ -78,13 +87,13 @@ export default async function SocisPage() {
               {event.title}
               {event.members_only && (
                 <span className="ml-2 rounded bg-secondary/20 px-2 py-0.5 text-xs text-secondary-dark">
-                  Només socis
+                  {t.membersOnlyBadge}
                 </span>
               )}
             </h3>
             {event.event_date && (
               <p className="text-sm text-slate-500">
-                {new Date(event.event_date).toLocaleDateString('ca-ES', {
+                {new Date(event.event_date).toLocaleDateString(dateLocale, {
                   day: 'numeric',
                   month: 'long',
                   year: 'numeric',
@@ -99,18 +108,18 @@ export default async function SocisPage() {
                 defaultEmail={member.email}
               />
             ) : (
-              <p className="mt-2 text-sm text-slate-500">Aquest acte no té reserves obertes.</p>
+              <p className="mt-2 text-sm text-slate-500">{t.reservationsClosed}</p>
             )}
           </li>
         ))}
       </ul>
 
-      <h2 className="pt-4 font-serif text-2xl font-semibold text-slate-900">Les meves reserves</h2>
-      {reservations.length === 0 && <p>Encara no has fet cap reserva.</p>}
+      <h2 className="pt-4 font-serif text-2xl font-semibold text-slate-900">{t.myReservationsTitle}</h2>
+      {reservations.length === 0 && <p>{t.noReservations}</p>}
       <ul className="space-y-2">
         {reservations.map((r) => (
           <li key={r.id} className="text-sm">
-            {r.events.title} — {r.quantity} {r.quantity === 1 ? 'persona' : 'persones'}
+            {r.events.title} — {r.quantity} {r.quantity === 1 ? t.personSingular : t.personPlural}
           </li>
         ))}
       </ul>

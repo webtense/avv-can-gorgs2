@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import ArchiveDetail from '@/components/archive/ArchiveDetail';
 import { getArchiveDetail } from '@/lib/archive-detail';
 import { validateId } from '@/app/api/archive/validators';
+import { getLocale, getMessages } from '@/lib/i18n';
 
 interface ArchiveDetailPageProps {
   params: Promise<{ id: string }>;
@@ -13,6 +14,8 @@ export default async function ArchiveDetailPage({
 }: ArchiveDetailPageProps) {
   const { id } = await params;
   const item = validateId(id) ? await getArchiveDetail(id) : null;
+  const locale = await getLocale();
+  const messages = getMessages(locale);
 
   if (!item) {
     notFound();
@@ -20,17 +23,17 @@ export default async function ArchiveDetailPage({
 
   return (
     <div className="mx-auto max-w-8xl px-4 py-10 sm:px-6 lg:px-8">
-      <nav aria-label="Breadcrumb" className="mb-6 text-sm text-slate-500">
+      <nav aria-label={messages.common.breadcrumbAria} className="mb-6 text-sm text-slate-500">
         <ol className="flex flex-wrap items-center gap-1">
           <li>
             <Link href="/" className="hover:text-primary">
-              Inici
+              {messages.common.nav.home}
             </Link>
           </li>
           <li aria-hidden="true">/</li>
           <li>
             <Link href="/archive" className="hover:text-primary">
-              Arxiu
+              {messages.archive.breadcrumbItem}
             </Link>
           </li>
           <li aria-hidden="true">/</li>

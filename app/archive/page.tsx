@@ -8,6 +8,7 @@ import Pagination from '@/components/common/Pagination';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { ArchiveItemType } from '@/lib/types';
 import { useArchiveList } from '@/hooks/useArchive';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 const PAGE_SIZE = 12;
 
@@ -22,6 +23,7 @@ export default function ArchivePage() {
 function ArchivePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useI18n();
 
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10) || 1);
   const type = (searchParams.get('type') ?? undefined) as ArchiveItemType | undefined;
@@ -87,12 +89,10 @@ function ArchivePageContent() {
   return (
     <div className="mx-auto max-w-8xl px-4 py-10 sm:px-6 lg:px-8">
       <h1 className="font-serif text-2xl font-bold text-slate-900 sm:text-3xl">
-        Arxiu
+        {t('archive.title')}
       </h1>
       <p className="mt-2 max-w-2xl text-sm text-slate-600">
-        Explora fotografies, documents, vídeos i esdeveniments històrics de
-        Can Gorgs II. Filtra per tipus, etiquetes o data per trobar el que
-        busques.
+        {t('archive.subtitle')}
       </p>
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[18rem_1fr]">
@@ -107,7 +107,7 @@ function ArchivePageContent() {
             {error ? (
               <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-10 text-center">
                 <p className="font-serif text-lg text-red-700">
-                  No s&apos;ha pogut carregar l&apos;arxiu
+                  {t('archive.loadError')}
                 </p>
                 <p className="mt-1 text-sm text-red-600">{error}</p>
               </div>

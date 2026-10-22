@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError } from '@/lib/i18n/api-error';
 import { prisma } from '@/lib/db';
 import { hashPassword, isPasswordValid } from '@/lib/auth/password';
 import { isValidEmail, isValidName, isValidPhone } from '@/lib/validators';
 import { isSameOriginRequest } from '@/lib/csrf';
+import { getLocale, getMessages } from '@/lib/i18n';
 
 export async function POST(request: NextRequest) {
   if (!isSameOriginRequest(request)) {
-    return NextResponse.json({ error: 'Sol·licitud no vàlida.' }, { status: 403 });
+    return apiError('invalidRequest', 403);
   }
 
   let body: Record<string, unknown>;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dades no vàlides.' }, { status: 400 });
+    return apiError('invalidData', 400);
   }
 
   const name = String(body.name || '').trim();
@@ -23,34 +25,25 @@ export async function POST(request: NextRequest) {
   const gdprConsent = body.gdprConsent === true;
 
   if (!isValidName(name)) {
-    return NextResponse.json({ error: 'El nom ha de tenir entre 2 i 150 caràcters.' }, { status: 400 });
+    return apiError('nameLength', 400);
   }
   if (!isValidEmail(email)) {
-    return NextResponse.json({ error: 'El correu electrònic no és vàlid.' }, { status: 400 });
+    return apiError('invalidEmail', 400);
   }
   if (!isPasswordValid(password)) {
-    return NextResponse.json(
-      { error: 'La contrasenya ha de tenir com a mínim 10 caràcters.' },
-      { status: 400 }
-    );
+    return apiError('passwordLength', 400);
   }
   if (phone && !isValidPhone(phone)) {
-    return NextResponse.json({ error: 'El telèfon no és vàlid.' }, { status: 400 });
+    return apiError('invalidPhone', 400);
   }
   if (!gdprConsent) {
-    return NextResponse.json(
-      { error: 'Cal acceptar el tractament de dades personals per registrar-se.' },
-      { status: 400 }
-    );
+    return apiError('gdprRequired', 400);
   }
 
   const existing = await prisma.members.findUnique({ where: { email } });
   if (existing) {
     // Missatge genèric: no revelem si el correu ja existeix.
-    return NextResponse.json(
-      { error: 'No s\'ha pogut completar el registre amb les dades proporcionades.' },
-      { status: 400 }
-    );
+    return apiError('registrationFailed', 400);
   }
 
   const passwordHash = await hashPassword(password);
@@ -66,8 +59,9 @@ export async function POST(request: NextRequest) {
     },
   });
 
+  const messages = getMessages(await getLocale());
   return NextResponse.json({
     ok: true,
-    message: 'Sol·licitud enviada. La junta revisarà la teva petició d\'alta properament.',
+    message: messages.apiErrors.registrationSent,
   });
 }

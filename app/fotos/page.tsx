@@ -1,11 +1,20 @@
 import { prisma } from '@/lib/db';
 import PageShell from '@/components/common/PageShell';
+import { getLocale, getMessages } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = { title: 'Fotos dels socis · AVV Can Gorgs II' };
+export async function generateMetadata() {
+  const locale = await getLocale();
+  const messages = getMessages(locale);
+  return { title: `${messages.fotos.title} · AVV Can Gorgs II` };
+}
 
 export default async function FotosPage() {
+  const locale = await getLocale();
+  const messages = getMessages(locale);
+  const t = messages.fotos;
+
   const photos = await prisma.event_photos.findMany({
     where: { approved: true },
     orderBy: { created_at: 'desc' },
@@ -13,16 +22,16 @@ export default async function FotosPage() {
   });
 
   return (
-    <PageShell title="Fotos dels socis">
-      <p>Imatges d&apos;actes de l&apos;associació compartides pels socis.</p>
-      {photos.length === 0 && <p>Encara no hi ha fotos publicades.</p>}
+    <PageShell title={t.title}>
+      <p>{t.intro}</p>
+      {photos.length === 0 && <p>{t.empty}</p>}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {photos.map((photo) => (
           <figure key={photo.id} className="overflow-hidden rounded-md border border-slate-200">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`/api/fotos/${photo.id}`}
-              alt={photo.caption || photo.events?.title || 'Foto d\'un acte de l\'associació'}
+              alt={photo.caption || photo.events?.title || t.altFallback}
               className="h-40 w-full object-cover"
               loading="lazy"
             />

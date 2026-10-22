@@ -1,6 +1,9 @@
+'use client';
+
 import Image from 'next/image';
-import { ARCHIVE_TYPE_LABELS, ArchiveItem } from '@/lib/types';
+import { ArchiveItem } from '@/lib/types';
 import ArchiveCard from './ArchiveCard';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 interface ArchiveDetailProps {
   id: string;
@@ -26,6 +29,7 @@ export default function ArchiveDetail({
   tags,
   relatedItems,
 }: ArchiveDetailProps) {
+  const { t, locale } = useI18n();
   return (
     <article className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr]">
       <div>
@@ -64,7 +68,7 @@ export default function ArchiveDetail({
 
         <div className="mt-6">
           <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            {ARCHIVE_TYPE_LABELS[type]}
+            {t(`archiveTypes.${type}`)}
           </span>
           <h1 className="mt-3 font-serif text-2xl font-bold text-slate-900 sm:text-3xl">
             {title}
@@ -73,9 +77,9 @@ export default function ArchiveDetail({
           <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-slate-500">
             {date && (
               <div className="flex gap-1">
-                <dt className="font-medium">Data:</dt>
+                <dt className="font-medium">{t('archiveDetail.date')}</dt>
                 <dd>
-                  {new Date(date).toLocaleDateString('ca-ES', {
+                  {new Date(date).toLocaleDateString(locale === 'es' ? 'es-ES' : 'ca-ES', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -85,7 +89,7 @@ export default function ArchiveDetail({
             )}
             {location && (
               <div className="flex gap-1">
-                <dt className="font-medium">Ubicació:</dt>
+                <dt className="font-medium">{t('archiveDetail.location')}</dt>
                 <dd>{location}</dd>
               </div>
             )}
@@ -100,7 +104,7 @@ export default function ArchiveDetail({
           </div>
 
           {tags.length > 0 && (
-            <ul className="mt-6 flex flex-wrap gap-2" aria-label="Etiquetes">
+            <ul className="mt-6 flex flex-wrap gap-2" aria-label={t('archiveList.tagsAria')}>
               {tags.map((tag) => (
                 <li
                   key={tag}
@@ -113,20 +117,20 @@ export default function ArchiveDetail({
           )}
 
           <div className="mt-8 flex gap-3 border-t border-slate-200 pt-6">
-            <span className="text-sm font-medium text-slate-600">Comparteix:</span>
+            <span className="text-sm font-medium text-slate-600">{t('archiveDetail.share')}</span>
             <button
               type="button"
               className="text-sm text-primary hover:underline"
-              aria-label="Compartir per correu"
+              aria-label={t('archiveDetail.shareEmailAria')}
             >
-              Correu
+              {t('archiveDetail.shareEmail')}
             </button>
             <button
               type="button"
               className="text-sm text-primary hover:underline"
-              aria-label="Copiar enllaç"
+              aria-label={t('archiveDetail.shareCopyLinkAria')}
             >
-              Copiar enllaç
+              {t('archiveDetail.shareCopyLink')}
             </button>
           </div>
         </div>
@@ -138,7 +142,7 @@ export default function ArchiveDetail({
             id="related-heading"
             className="font-serif text-lg font-semibold text-slate-900"
           >
-            Relacionats
+            {t('archiveDetail.relatedTitle')}
           </h2>
           <ul className="mt-4 space-y-4">
             {relatedItems.map((item) => (

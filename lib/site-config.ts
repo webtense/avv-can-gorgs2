@@ -8,18 +8,18 @@ export const siteConfig = {
 };
 
 export const navigation = [
-  { href: '/', label: 'Inici' },
-  { href: '/archive', label: 'Arxiu' },
-  { href: '/agenda', label: 'Agenda' },
-  { href: '/fotos', label: 'Fotos' },
-  { href: '/about', label: 'L\'associació' },
-  { href: '/barri', label: 'El barri' },
-  { href: '/contact', label: 'Contacte' },
-  { href: '/socis', label: 'Socis' },
-];
+  { href: '/', labelKey: 'common.nav.home' },
+  { href: '/archive', labelKey: 'common.nav.archive' },
+  { href: '/agenda', labelKey: 'common.nav.agenda' },
+  { href: '/fotos', labelKey: 'common.nav.fotos' },
+  { href: '/about', labelKey: 'common.nav.about' },
+  { href: '/barri', labelKey: 'common.nav.barri' },
+  { href: '/contact', labelKey: 'common.nav.contact' },
+  { href: '/socis', labelKey: 'common.nav.socis' },
+] as const;
 
 export const footerLegal = [
-  { href: '/terms', label: 'Avís legal' },
-  { href: '/privacy', label: 'Política de privacitat' },
-  { href: '/cookies', label: 'Política de cookies' },
-];
+  { href: '/terms', labelKey: 'terms.title' },
+  { href: '/privacy', labelKey: 'privacy.title' },
+  { href: '/cookies', labelKey: 'cookies.title' },
+] as const;

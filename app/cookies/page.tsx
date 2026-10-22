@@ -1,12 +1,21 @@
 import PageShell from '@/components/common/PageShell';
+import { getLocale, getMessages } from '@/lib/i18n';
 
-export const metadata = { title: 'Política de cookies · Can Gorgs II' };
+export async function generateMetadata() {
+  const locale = await getLocale();
+  const messages = getMessages(locale);
+  return { title: `${messages.cookies.title} · Can Gorgs II` };
+}
 
-export default function Page() {
+export default async function Page() {
+  const locale = await getLocale();
+  const messages = getMessages(locale);
+  const t = messages.cookies;
+
   return (
-    <PageShell title="Política de cookies">
+    <PageShell title={t.title}>
       <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-        Text provisional, pendent de validació per la Junta de l&apos;associació.
+        {t.provisional}
       </p>
     </PageShell>
   );

@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 interface Props {
   id: string;
@@ -12,6 +13,7 @@ interface Props {
 
 export default function EventFlagsForm({ id, membersOnly, reservationsOpen, capacity }: Props) {
   const router = useRouter();
+  const { t } = useI18n();
   const [mOnly, setMOnly] = useState(membersOnly);
   const [resOpen, setResOpen] = useState(reservationsOpen);
   const [cap, setCap] = useState(capacity != null ? String(capacity) : '');
@@ -35,7 +37,7 @@ export default function EventFlagsForm({ id, membersOnly, reservationsOpen, capa
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || 'No s\'ha pogut desar.');
+        setError(data.error || t('admin.events.saveError'));
         return;
       }
       router.refresh();
@@ -49,20 +51,20 @@ export default function EventFlagsForm({ id, membersOnly, reservationsOpen, capa
       {error && <span className="text-xs text-red-600">{error}</span>}
       <label className="flex items-center gap-1">
         <input type="checkbox" checked={mOnly} onChange={(e) => setMOnly(e.target.checked)} />
-        Només socis
+        {t('admin.events.membersOnly')}
       </label>
       <label className="flex items-center gap-1">
         <input type="checkbox" checked={resOpen} onChange={(e) => setResOpen(e.target.checked)} />
-        Reserves obertes
+        {t('admin.events.reservationsOpen')}
       </label>
       <label className="flex items-center gap-1">
-        Aforament
+        {t('admin.events.capacity')}
         <input
           type="number"
           min={1}
           value={cap}
           onChange={(e) => setCap(e.target.value)}
-          placeholder="sense límit"
+          placeholder={t('admin.events.capacityPlaceholder')}
           className="w-24 rounded-md border border-slate-300 px-2 py-1"
         />
       </label>
@@ -71,7 +73,7 @@ export default function EventFlagsForm({ id, membersOnly, reservationsOpen, capa
         disabled={loading}
         className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-white hover:bg-primary-dark disabled:opacity-60"
       >
-        {loading ? 'Desant…' : 'Desar'}
+        {loading ? t('admin.events.saving') : t('admin.events.save')}
       </button>
     </form>
   );

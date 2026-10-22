@@ -2,15 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 interface ChangelogEntry {
   version: string;
   date: string;
-  sections: {
-    features: string[];
-    fixes: string[];
-    internal: string[];
-  };
+  features: string[];
+  fixes: string[];
 }
 
 interface VersionBadgeProps {
@@ -21,6 +19,7 @@ export default function VersionBadge({ version }: VersionBadgeProps) {
   const [open, setOpen] = useState(false);
   const [changelog, setChangelog] = useState<ChangelogEntry[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     if (!open || changelog || loading) return;
@@ -60,25 +59,25 @@ export default function VersionBadge({ version }: VersionBadgeProps) {
       {open && (
         <div
           role="dialog"
-          aria-label="Historial de versions"
+          aria-label={t('versionBadge.changelogDialogAria')}
           className="absolute right-0 mt-2 w-80 max-w-[90vw] max-h-96 overflow-y-auto rounded-lg border border-slate-200 bg-white p-4 shadow-xl z-50"
         >
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-serif text-base text-slate-900">Changelog</h3>
+            <h3 className="font-serif text-base text-slate-900">{t('versionBadge.changelogTitle')}</h3>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              aria-label="Tancar changelog"
+              aria-label={t('versionBadge.closeAria')}
               className="text-slate-400 hover:text-slate-700"
             >
               ✕
             </button>
           </div>
 
-          {loading && <p className="text-sm text-slate-500">Carregant...</p>}
+          {loading && <p className="text-sm text-slate-500">{t('versionBadge.loading')}</p>}
 
           {!loading && changelog && changelog.length === 0 && (
-            <p className="text-sm text-slate-500">No hi ha canvis registrats.</p>
+            <p className="text-sm text-slate-500">{t('versionBadge.empty')}</p>
           )}
 
           <ul className="space-y-3">
@@ -88,9 +87,9 @@ export default function VersionBadge({ version }: VersionBadgeProps) {
                   v{entry.version}{' '}
                   <span className="font-normal text-slate-400">{entry.date}</span>
                 </p>
-                {entry.sections.features.length > 0 && (
+                {entry.features.length > 0 && (
                   <ul className="mt-1 list-disc pl-4 text-xs text-slate-600 space-y-0.5">
-                    {entry.sections.features.slice(0, 3).map((feature) => (
+                    {entry.features.slice(0, 3).map((feature) => (
                       <li key={feature}>{feature}</li>
                     ))}
                   </ul>
@@ -105,7 +104,7 @@ export default function VersionBadge({ version }: VersionBadgeProps) {
               onClick={() => setOpen(false)}
               className="text-xs font-medium text-primary hover:underline"
             >
-              Veure historial complet
+              {t('versionBadge.viewFull')}
             </Link>
           </div>
         </div>

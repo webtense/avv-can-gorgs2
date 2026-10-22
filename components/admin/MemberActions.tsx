@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 export default function MemberActions({ id, status }: { id: string; status: string }) {
   const router = useRouter();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +21,7 @@ export default function MemberActions({ id, status }: { id: string; status: stri
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || 'No s\'ha pogut aplicar l\'acció.');
+        setError(data.error || t('admin.members.actionError'));
         return;
       }
       router.refresh();
@@ -41,7 +43,7 @@ export default function MemberActions({ id, status }: { id: string; status: stri
         onClick={() => act('aprovar')}
         className="rounded-md bg-emerald-600 px-2 py-1 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
       >
-        Aprovar
+        {t('admin.members.approve')}
       </button>
       <button
         type="button"
@@ -49,7 +51,7 @@ export default function MemberActions({ id, status }: { id: string; status: stri
         onClick={() => act('rebutjar')}
         className="rounded-md bg-red-500 px-2 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-60"
       >
-        Rebutjar
+        {t('admin.members.reject')}
       </button>
     </div>
   );

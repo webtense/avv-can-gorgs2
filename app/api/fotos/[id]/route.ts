@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError } from '@/lib/i18n/api-error';
 import { prisma } from '@/lib/db';
 import { getCurrentMember } from '@/lib/auth/session';
 import { readUploadedFile } from '@/lib/uploads';
@@ -7,7 +8,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { id } = await params;
   const photo = await prisma.event_photos.findUnique({ where: { id } });
   if (!photo) {
-    return NextResponse.json({ error: 'Foto no trobada.' }, { status: 404 });
+    return apiError('photoNotFound', 404);
   }
 
   if (!photo.approved) {
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const isOwner = member && member.id === photo.uploaded_by;
     const isAdmin = member && member.admin && member.status === 'actiu';
     if (!isOwner && !isAdmin) {
-      return NextResponse.json({ error: 'Foto no disponible.' }, { status: 404 });
+      return apiError('photoNotAvailable', 404);
     }
   }
 
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     buffer = await readUploadedFile(photo.file_name);
   } catch {
-    return NextResponse.json({ error: 'Fitxer no disponible.' }, { status: 404 });
+    return apiError('fileNotAvailable', 404);
   }
 
   return new NextResponse(new Uint8Array(buffer), {

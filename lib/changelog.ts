@@ -1,14 +1,41 @@
+export interface ChangelogSections {
+  features: string[];
+  fixes: string[];
+  internal: string[];
+}
+
 export interface ChangelogEntry {
   version: string;
   date: string;
-  sections: {
-    features: string[];
-    fixes: string[];
-    internal: string[];
+  sections: ChangelogSections & {
+    /**
+     * Traducción al castellano de `features`/`fixes` (opcional).
+     * Decisión: el catalán sigue siendo la fuente de verdad del changelog;
+     * solo se traduce `es` para las entradas nuevas a partir de la 1.3.0.
+     * Las entradas anteriores a la 1.3.0 se muestran en su idioma original
+     * (mayoritariamente catalán, alguna en castellano) también con locale `es`.
+     */
+    es?: Partial<ChangelogSections>;
   };
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.3.0',
+    date: '2026-10-22',
+    sections: {
+      features: [
+        'Web disponible en català i castellà, amb selector d\'idioma',
+      ],
+      fixes: [],
+      internal: [],
+      es: {
+        features: [
+          'Web disponible en catalán y castellano, con selector de idioma',
+        ],
+      },
+    },
+  },
   {
     version: '1.2.1',
     date: '2026-10-22',
@@ -213,3 +240,30 @@ export const CHANGELOG: ChangelogEntry[] = [
     },
   },
 ];
+
+export interface ResolvedChangelogEntry {
+  version: string;
+  date: string;
+  features: string[];
+  fixes: string[];
+}
+
+/**
+ * Resuelve cada entrada al idioma pedido: usa `sections.es` si existe para
+ * ese locale, y si no hay traducción cae al contenido original (catalán,
+ * fuente de verdad del changelog).
+ */
+export function getChangelog(locale: 'ca' | 'es' = 'ca'): ResolvedChangelogEntry[] {
+  return CHANGELOG.map((entry) => ({
+    version: entry.version,
+    date: entry.date,
+    features:
+      locale === 'es' && entry.sections.es?.features
+        ? entry.sections.es.features
+        : entry.sections.features,
+    fixes:
+      locale === 'es' && entry.sections.es?.fixes
+        ? entry.sections.es.fixes
+        : entry.sections.fixes,
+  }));
+}

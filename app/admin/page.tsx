@@ -1,14 +1,20 @@
-export const metadata = { title: 'Administració · AVV Can Gorgs II' };
+import { getLocale, getMessages } from '@/lib/i18n';
 
-export default function AdminHomePage() {
+export async function generateMetadata() {
+  const locale = await getLocale();
+  const messages = getMessages(locale);
+  return { title: `${messages.admin.home.title} · AVV Can Gorgs II` };
+}
+
+export default async function AdminHomePage() {
+  const locale = await getLocale();
+  const messages = getMessages(locale);
+  const t = messages.admin.home;
+
   return (
     <div>
-      <h1 className="font-serif text-3xl font-bold text-primary">Administració</h1>
-      <p className="mt-4 text-slate-700">
-        Des d&apos;aquí pots aprovar o rebutjar sol·licituds de socis, gestionar quins actes són
-        només per a socis o tenen reserves obertes, i revisar les fotos pujades pendents de
-        publicació.
-      </p>
+      <h1 className="font-serif text-3xl font-bold text-primary">{t.title}</h1>
+      <p className="mt-4 text-slate-700">{t.intro}</p>
     </div>
   );
 }

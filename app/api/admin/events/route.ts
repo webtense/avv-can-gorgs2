@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError } from '@/lib/i18n/api-error';
 import { prisma } from '@/lib/db';
 import { getAdminMember } from '@/lib/auth/session';
 import { isSameOriginRequest } from '@/lib/csrf';
@@ -6,7 +7,7 @@ import { isSameOriginRequest } from '@/lib/csrf';
 export async function GET() {
   const admin = await getAdminMember();
   if (!admin) {
-    return NextResponse.json({ error: 'No autoritzat.' }, { status: 403 });
+    return apiError('notAuthorized', 403);
   }
   const events = await prisma.events.findMany({
     orderBy: { event_date: 'desc' },
@@ -25,22 +26,22 @@ export async function GET() {
 export async function PATCH(request: NextRequest) {
   const admin = await getAdminMember();
   if (!admin) {
-    return NextResponse.json({ error: 'No autoritzat.' }, { status: 403 });
+    return apiError('notAuthorized', 403);
   }
   if (!isSameOriginRequest(request)) {
-    return NextResponse.json({ error: 'Sol·licitud no vàlida.' }, { status: 403 });
+    return apiError('invalidRequest', 403);
   }
 
   let body: Record<string, unknown>;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dades no vàlides.' }, { status: 400 });
+    return apiError('invalidData', 400);
   }
 
   const id = String(body.id || '');
   if (!id) {
-    return NextResponse.json({ error: 'Falta l\'identificador de l\'acte.' }, { status: 400 });
+    return apiError('missingEventId', 400);
   }
 
   const data: { members_only?: boolean; reservations_open?: boolean; capacity?: number | null } = {};

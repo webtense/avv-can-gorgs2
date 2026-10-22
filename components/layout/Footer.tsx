@@ -1,9 +1,13 @@
 import Link from 'next/link';
 
 import { siteConfig, footerLegal } from '@/lib/site-config';
+import { getLocale, getMessages } from '@/lib/i18n';
 
-export default function Footer() {
+export default async function Footer() {
   const year = new Date().getFullYear();
+  const locale = await getLocale();
+  const messages = getMessages(locale);
+  const t = messages.common;
 
   return (
     <footer className="bg-slate-900 text-slate-300">
@@ -14,13 +18,13 @@ export default function Footer() {
               {siteConfig.fullName}
             </h2>
             <p className="mt-2 text-sm text-slate-400">
-              Preservant la memòria històrica del barri.
+              {t.footer.tagline}
             </p>
           </div>
 
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-200">
-              Contacte
+              {t.footer.contactTitle}
             </h3>
             <ul className="mt-2 space-y-1 text-sm">
               {siteConfig.email && (
@@ -37,19 +41,22 @@ export default function Footer() {
 
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-200">
-              Enllaços
+              {t.footer.linksTitle}
             </h3>
             <ul className="mt-2 space-y-1 text-sm">
-              {footerLegal.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="hover:text-white transition-colors">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
+              {footerLegal.map((l) => {
+                const section = l.labelKey.split('.')[0] as 'terms' | 'privacy' | 'cookies';
+                return (
+                  <li key={l.href}>
+                    <Link href={l.href} className="hover:text-white transition-colors">
+                      {messages[section].title}
+                    </Link>
+                  </li>
+                );
+              })}
               <li>
                 <Link href="/changelog" className="hover:text-white transition-colors">
-                  Historial de versions
+                  {t.footer.changelog}
                 </Link>
               </li>
             </ul>
@@ -57,7 +64,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 border-t border-slate-700 pt-6 text-xs text-slate-500">
-          © {year} {siteConfig.fullName}. Tots els drets reservats.
+          © {year} {siteConfig.fullName}. {t.footer.rightsReserved}
         </div>
       </div>
     </footer>

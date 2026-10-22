@@ -1,6 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
-import { ARCHIVE_TYPE_LABELS, ArchiveItem } from '@/lib/types';
+import { ArchiveItem } from '@/lib/types';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 type ArchiveCardProps = Pick<
   ArchiveItem,
@@ -22,6 +25,7 @@ export default function ArchiveCard({
   tags,
   type,
 }: ArchiveCardProps) {
+  const { t, locale } = useI18n();
   return (
     <Link
       href={`/archive/${id}`}
@@ -60,7 +64,7 @@ export default function ArchiveCard({
         <span
           className={`absolute left-3 top-3 rounded-full px-2.5 py-0.5 text-xs font-semibold ${TYPE_BADGE_STYLES[type]}`}
         >
-          {ARCHIVE_TYPE_LABELS[type]}
+          {t(`archiveTypes.${type}`)}
         </span>
       </div>
 
@@ -70,7 +74,7 @@ export default function ArchiveCard({
         </h3>
         {date && (
           <p className="mt-1 text-xs text-slate-500">
-            {new Date(date).toLocaleDateString('ca-ES', {
+            {new Date(date).toLocaleDateString(locale === 'es' ? 'es-ES' : 'ca-ES', {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
@@ -78,7 +82,7 @@ export default function ArchiveCard({
           </p>
         )}
         {tags.length > 0 && (
-          <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Etiquetes">
+          <ul className="mt-3 flex flex-wrap gap-1.5" aria-label={t('archiveList.tagsAria')}>
             {tags.slice(0, 3).map((tag) => (
               <li
                 key={tag}
