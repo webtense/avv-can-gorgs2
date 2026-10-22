@@ -102,7 +102,8 @@ export default function Header({ version = '0.6.0-BETA' }: HeaderProps) {
                 {t(link.labelKey)}
               </Link>
             ))}
-            <div className="px-3 pt-2">
+            <div className="px-3 pt-2 flex flex-col gap-2">
+              {authLink}
               <VersionBadge version={version} />
             </div>
           </nav>
