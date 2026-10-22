@@ -1,5 +1,8 @@
+'use client';
+
 import { ArchiveItem } from '@/lib/types';
 import ArchiveCard from './ArchiveCard';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 interface ArchiveListProps {
   items: ArchiveItem[];
@@ -31,16 +34,15 @@ export default function ArchiveList({
   onLoadMore,
   isFiltered = false,
 }: ArchiveListProps) {
+  const { t } = useI18n();
   if (!loading && items.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
         <p className="font-serif text-lg text-slate-700">
-          {isFiltered ? 'No s\'han trobat resultats' : 'Encara no hi ha elements publicats'}
+          {isFiltered ? t('archiveList.emptyFilteredTitle') : t('archiveList.emptyTitle')}
         </p>
         <p className="mt-1 text-sm text-slate-500">
-          {isFiltered
-            ? 'Prova amb altres paraules clau o elimina alguns filtres.'
-            : 'Aviat hi trobareu fotografies, documents i esdeveniments del barri.'}
+          {isFiltered ? t('archiveList.emptyFilteredSubtitle') : t('archiveList.emptySubtitle')}
         </p>
       </div>
     );
@@ -79,7 +81,7 @@ export default function ArchiveList({
             onClick={onLoadMore}
             className="rounded-lg border border-primary px-6 py-2.5 text-sm font-semibold text-primary hover:bg-primary hover:text-white transition-colors"
           >
-            Carregar més
+            {t('archiveList.loadMore')}
           </button>
         </div>
       )}

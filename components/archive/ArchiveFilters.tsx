@@ -1,8 +1,9 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { ARCHIVE_TYPE_LABELS, ArchiveItemType } from '@/lib/types';
+import { ArchiveItemType } from '@/lib/types';
 import SearchBar from '@/components/common/SearchBar';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 const ALL_TYPES: ArchiveItemType[] = ['event', 'photo', 'document', 'video'];
 
@@ -29,6 +30,7 @@ export default function ArchiveFilters({
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const headingId = useId();
+  const { t } = useI18n();
 
   function handleTypeChange(type: ArchiveItemType) {
     const next = selectedType === type ? undefined : type;
@@ -65,13 +67,13 @@ export default function ArchiveFilters({
         aria-controls="archive-filters-panel"
       >
         <h2 id={headingId} className="font-serif text-base text-slate-900">
-          Filtres
+          {t('archiveFilters.title')}
         </h2>
         <span aria-hidden="true">{expanded ? '−' : '+'}</span>
       </button>
 
       <h2 id={headingId} className="hidden lg:block font-serif text-base text-slate-900">
-        Filtres
+        {t('archiveFilters.title')}
       </h2>
 
       <div
@@ -83,7 +85,7 @@ export default function ArchiveFilters({
         </div>
 
         <fieldset>
-          <legend className="text-sm font-semibold text-slate-700">Tipus</legend>
+          <legend className="text-sm font-semibold text-slate-700">{t('archiveFilters.typeLegend')}</legend>
           <div className="mt-2 space-y-2">
             {ALL_TYPES.map((type) => (
               <label key={type} className="flex items-center gap-2 text-sm text-slate-600">
@@ -93,7 +95,7 @@ export default function ArchiveFilters({
                   onChange={() => handleTypeChange(type)}
                   className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
                 />
-                {ARCHIVE_TYPE_LABELS[type]}
+                {t(`archiveTypes.${type}`)}
               </label>
             ))}
           </div>
@@ -101,7 +103,7 @@ export default function ArchiveFilters({
 
         {availableTags.length > 0 && (
           <fieldset>
-            <legend className="text-sm font-semibold text-slate-700">Etiquetes</legend>
+            <legend className="text-sm font-semibold text-slate-700">{t('archiveFilters.tagsLegend')}</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {availableTags.map((tag) => {
                 const active = selectedTags.includes(tag);
@@ -126,10 +128,10 @@ export default function ArchiveFilters({
         )}
 
         <fieldset>
-          <legend className="text-sm font-semibold text-slate-700">Rang de dates</legend>
+          <legend className="text-sm font-semibold text-slate-700">{t('archiveFilters.dateLegend')}</legend>
           <div className="mt-2 flex flex-col gap-2">
             <label className="text-xs text-slate-500">
-              Des de
+              {t('archiveFilters.dateFrom')}
               <input
                 type="date"
                 value={dateFrom}
@@ -138,7 +140,7 @@ export default function ArchiveFilters({
               />
             </label>
             <label className="text-xs text-slate-500">
-              Fins a
+              {t('archiveFilters.dateTo')}
               <input
                 type="date"
                 value={dateTo}

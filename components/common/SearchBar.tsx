@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -11,9 +12,11 @@ interface SearchBarProps {
 export default function SearchBar({
   onSearch,
   initialQuery = '',
-  placeholder = 'Cerca a l’arxiu...',
+  placeholder,
 }: SearchBarProps) {
   const [query, setQuery] = useState(initialQuery);
+  const { t } = useI18n();
+  const resolvedPlaceholder = placeholder ?? t('searchBar.placeholder');
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -27,21 +30,21 @@ export default function SearchBar({
       className="flex w-full items-stretch gap-2"
     >
       <label htmlFor="archive-search" className="sr-only">
-        Cerca a l&apos;arxiu
+        {t('searchBar.label')}
       </label>
       <input
         id="archive-search"
         type="search"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder={placeholder}
+        placeholder={resolvedPlaceholder}
         className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-accent-search focus:outline-none"
       />
       <button
         type="submit"
         className="shrink-0 rounded-lg bg-accent-search px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent-search-dark transition-colors"
       >
-        <span className="hidden sm:inline">Cercar</span>
+        <span className="hidden sm:inline">{t('searchBar.button')}</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-5 w-5 sm:hidden"
@@ -55,7 +58,7 @@ export default function SearchBar({
             clipRule="evenodd"
           />
         </svg>
-        <span className="sr-only sm:hidden">Cercar</span>
+        <span className="sr-only sm:hidden">{t('searchBar.button')}</span>
       </button>
     </form>
   );
