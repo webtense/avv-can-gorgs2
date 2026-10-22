@@ -8,6 +8,7 @@ interface CartEntry {
   product: { id: string; name: string; priceCents: number };
   qty: number;
   isFree: boolean;
+  giftValueCents: number | null;
 }
 
 export default function PaymentModal({
@@ -38,7 +39,10 @@ export default function PaymentModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const giftCents = cartEntries.reduce((sum, e) => (e.isFree ? sum + e.product.priceCents * e.qty : sum), 0);
+  const giftCents = cartEntries.reduce(
+    (sum, e) => (e.isFree ? sum + (e.giftValueCents ?? e.product.priceCents) * e.qty : sum),
+    0
+  );
 
   const paidCents = useMemo(() => {
     const euros = Number(paidInput.replace(',', '.'));
@@ -65,7 +69,12 @@ export default function PaymentModal({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: cartEntries.map((e) => ({ productId: e.product.id, qty: e.qty, isFree: e.isFree })),
+          items: cartEntries.map((e) => ({
+            productId: e.product.id,
+            qty: e.qty,
+            isFree: e.isFree,
+            giftValueCents: e.isFree ? e.giftValueCents : null,
+          })),
           paidCents,
         }),
       });

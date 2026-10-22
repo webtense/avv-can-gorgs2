@@ -17,6 +17,8 @@ interface CartEntry {
   product: TpvProduct;
   qty: number;
   isFree: boolean;
+  /** Valor unitari explícit del regal (cèntims), opcional. */
+  giftValueCents: number | null;
 }
 
 interface CompletedSale {
@@ -51,7 +53,12 @@ export default function TpvClient({
       const existing = prev[product.id];
       return {
         ...prev,
-        [product.id]: { product, qty: (existing?.qty ?? 0) + 1, isFree: existing?.isFree ?? false },
+        [product.id]: {
+          product,
+          qty: (existing?.qty ?? 0) + 1,
+          isFree: existing?.isFree ?? false,
+          giftValueCents: existing?.giftValueCents ?? null,
+        },
       };
     });
   }
@@ -60,7 +67,18 @@ export default function TpvClient({
     setCart((prev) => {
       const existing = prev[productId];
       if (!existing) return prev;
-      return { ...prev, [productId]: { ...existing, isFree: !existing.isFree } };
+      const isFree = !existing.isFree;
+      return { ...prev, [productId]: { ...existing, isFree, giftValueCents: isFree ? existing.giftValueCents : null } };
+    });
+  }
+
+  function setGiftValue(productId: string, euros: string) {
+    setCart((prev) => {
+      const existing = prev[productId];
+      if (!existing) return prev;
+      const n = Number(euros.replace(',', '.'));
+      const giftValueCents = euros.trim() && Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : null;
+      return { ...prev, [productId]: { ...existing, giftValueCents } };
     });
   }
 
@@ -132,7 +150,7 @@ export default function TpvClient({
           <p className="mt-4 text-sm text-slate-500">{t('tpv.sale.empty')}</p>
         ) : (
           <ul className="mt-4 space-y-3">
-            {cartEntries.map(({ product, qty, isFree }) => (
+            {cartEntries.map(({ product, qty, isFree, giftValueCents }) => (
               <li key={product.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2 last:border-0">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-slate-900">{product.name}</p>
@@ -168,6 +186,16 @@ export default function TpvClient({
                   />
                   {t('tpv.sale.free')}
                 </label>
+                {isFree && (
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={giftValueCents !== null ? (giftValueCents / 100).toFixed(2).replace('.', ',') : ''}
+                    onChange={(e) => setGiftValue(product.id, e.target.value)}
+                    placeholder={t('tpv.sale.giftValuePlaceholder')}
+                    className="w-full rounded-md border border-slate-300 px-2 py-1 text-xs sm:w-28"
+                  />
+                )}
               </li>
             ))}
           </ul>
