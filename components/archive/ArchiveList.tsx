@@ -6,6 +6,7 @@ interface ArchiveListProps {
   loading?: boolean;
   hasMore?: boolean;
   onLoadMore?: () => void;
+  isFiltered?: boolean;
 }
 
 function SkeletonCard() {
@@ -28,15 +29,18 @@ export default function ArchiveList({
   loading = false,
   hasMore = false,
   onLoadMore,
+  isFiltered = false,
 }: ArchiveListProps) {
   if (!loading && items.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
         <p className="font-serif text-lg text-slate-700">
-          No s&apos;han trobat resultats
+          {isFiltered ? 'No s\'han trobat resultats' : 'Encara no hi ha elements publicats'}
         </p>
         <p className="mt-1 text-sm text-slate-500">
-          Prova amb altres paraules clau o elimina alguns filtres.
+          {isFiltered
+            ? 'Prova amb altres paraules clau o elimina alguns filtres.'
+            : 'Aviat hi trobareu fotografies, documents i esdeveniments del barri.'}
         </p>
       </div>
     );

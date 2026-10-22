@@ -112,7 +112,7 @@ function ArchivePageContent() {
                 <p className="mt-1 text-sm text-red-600">{error}</p>
               </div>
             ) : (
-              <ArchiveList items={items} loading={loading} />
+              <ArchiveList items={items} loading={loading} isFiltered={Boolean(query || type || tag)} />
             )}
           </ErrorBoundary>
           {!error && (
