@@ -51,6 +51,11 @@ export default function Footer() {
                   Avís legal
                 </Link>
               </li>
+              <li>
+                <Link href="/changelog" className="hover:text-white transition-colors">
+                  Historial de versions
+                </Link>
+              </li>
               <li className="flex gap-3 pt-2">
                 <a
                   href="https://facebook.com"

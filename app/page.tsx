@@ -1,11 +1,12 @@
+'use client';
+
 import Link from 'next/link';
 import ArchiveList from '@/components/archive/ArchiveList';
-import { ArchiveItem } from '@/lib/types';
-
-// Dades d'exemple fins que l'Oleada 5 connecti aquesta pàgina a /api/archive.
-const LATEST_ITEMS: ArchiveItem[] = [];
+import { useArchiveList } from '@/hooks/useArchive';
 
 export default function Home() {
+  const { items, loading, error } = useArchiveList({ limit: 6 });
+
   return (
     <>
       <section className="bg-gradient-to-b from-primary to-primary-dark text-white">
@@ -44,7 +45,16 @@ export default function Home() {
           </Link>
         </div>
         <div className="mt-6">
-          <ArchiveList items={LATEST_ITEMS} />
+          {error ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-10 text-center">
+              <p className="font-serif text-lg text-red-700">
+                No s&apos;han pogut carregar les novetats
+              </p>
+              <p className="mt-1 text-sm text-red-600">{error}</p>
+            </div>
+          ) : (
+            <ArchiveList items={items} loading={loading} />
+          )}
         </div>
       </section>
     </>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 interface ChangelogEntry {
   version: string;
@@ -97,6 +98,16 @@ export default function VersionBadge({ version }: VersionBadgeProps) {
               </li>
             ))}
           </ul>
+
+          <div className="mt-3 border-t border-slate-100 pt-2 text-right">
+            <Link
+              href="/changelog"
+              onClick={() => setOpen(false)}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              Veure historial complet
+            </Link>
+          </div>
         </div>
       )}
     </div>

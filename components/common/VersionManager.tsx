@@ -37,12 +37,20 @@ export default function VersionManager() {
       }
     }
 
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'visible') {
+        checkVersion();
+      }
+    }
+
     checkVersion();
     const intervalId = window.setInterval(checkVersion, CHECK_INTERVAL_MS);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       cancelled = true;
       window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
