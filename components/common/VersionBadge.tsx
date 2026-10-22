@@ -7,11 +7,8 @@ import { useI18n } from '@/components/i18n/I18nProvider';
 interface ChangelogEntry {
   version: string;
   date: string;
-  sections: {
-    features: string[];
-    fixes: string[];
-    internal: string[];
-  };
+  features: string[];
+  fixes: string[];
 }
 
 interface VersionBadgeProps {
@@ -90,9 +87,9 @@ export default function VersionBadge({ version }: VersionBadgeProps) {
                   v{entry.version}{' '}
                   <span className="font-normal text-slate-400">{entry.date}</span>
                 </p>
-                {entry.sections.features.length > 0 && (
+                {entry.features.length > 0 && (
                   <ul className="mt-1 list-disc pl-4 text-xs text-slate-600 space-y-0.5">
-                    {entry.sections.features.slice(0, 3).map((feature) => (
+                    {entry.features.slice(0, 3).map((feature) => (
                       <li key={feature}>{feature}</li>
                     ))}
                   </ul>
