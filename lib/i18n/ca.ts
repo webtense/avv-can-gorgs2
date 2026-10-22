@@ -324,5 +324,6 @@ export const messages = {
   },
 } as const;
 
-export type Messages = typeof messages;
+type DeepStrings<T> = T extends string ? string : { [K in keyof T]: DeepStrings<T[K]> };
+export type Messages = DeepStrings<typeof messages>;
 export default messages;
