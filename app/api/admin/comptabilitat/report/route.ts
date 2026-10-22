@@ -65,10 +65,11 @@ export async function GET(request: NextRequest) {
   let tpvCount: number | null = null;
   if (await tableExists('tpv_sales')) {
     try {
+      // No es compten les vendes anul·lades (voided = true) en el total del TPV.
       const rows = await prisma.$queryRaw<{ total: bigint | null; count: bigint }[]>`
         SELECT SUM(total_cents)::bigint AS total, COUNT(*)::bigint AS count
         FROM tpv_sales
-        WHERE created_at >= ${start} AND created_at < ${end}
+        WHERE created_at >= ${start} AND created_at < ${end} AND voided = false
       `;
       tpvTotalCents = rows[0]?.total != null ? Number(rows[0].total) : 0;
       tpvCount = rows[0]?.count != null ? Number(rows[0].count) : 0;
