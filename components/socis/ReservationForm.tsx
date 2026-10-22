@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 interface Props {
   eventId: string;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function ReservationForm({ eventId, defaultName = '', defaultEmail = '' }: Props) {
+  const { t } = useI18n();
   const [name, setName] = useState(defaultName);
   const [email, setEmail] = useState(defaultEmail);
   const [quantity, setQuantity] = useState(1);
@@ -28,12 +30,12 @@ export default function ReservationForm({ eventId, defaultName = '', defaultEmai
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'No s\'ha pogut fer la reserva.');
+        setError(data.error || t('reservationForm.genericError'));
         return;
       }
       setSuccess(true);
     } catch {
-      setError('Error de connexió. Torna-ho a provar.');
+      setError(t('reservationForm.connectionError'));
     } finally {
       setLoading(false);
     }
@@ -42,7 +44,7 @@ export default function ReservationForm({ eventId, defaultName = '', defaultEmai
   if (success) {
     return (
       <p role="status" className="mt-2 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-        Reserva confirmada. Gràcies!
+        {t('reservationForm.confirmed')}
       </p>
     );
   }
@@ -51,7 +53,7 @@ export default function ReservationForm({ eventId, defaultName = '', defaultEmai
 
   return (
     <form onSubmit={handleSubmit} className="mt-3 space-y-2 rounded-md bg-slate-50 p-3" noValidate>
-      <p className="text-sm font-medium text-slate-700">Reserva la teva plaça (gratuïta)</p>
+      <p className="text-sm font-medium text-slate-700">{t('reservationForm.title')}</p>
       {error && (
         <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}
@@ -60,7 +62,7 @@ export default function ReservationForm({ eventId, defaultName = '', defaultEmai
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         <div>
           <label htmlFor={`${idPrefix}-name`} className="block text-xs font-medium text-slate-600">
-            Nom
+            {t('reservationForm.name')}
           </label>
           <input
             id={`${idPrefix}-name`}
@@ -75,7 +77,7 @@ export default function ReservationForm({ eventId, defaultName = '', defaultEmai
         </div>
         <div>
           <label htmlFor={`${idPrefix}-email`} className="block text-xs font-medium text-slate-600">
-            Correu
+            {t('reservationForm.email')}
           </label>
           <input
             id={`${idPrefix}-email`}
@@ -88,7 +90,7 @@ export default function ReservationForm({ eventId, defaultName = '', defaultEmai
         </div>
         <div>
           <label htmlFor={`${idPrefix}-quantity`} className="block text-xs font-medium text-slate-600">
-            Persones
+            {t('reservationForm.quantity')}
           </label>
           <input
             id={`${idPrefix}-quantity`}
@@ -107,7 +109,7 @@ export default function ReservationForm({ eventId, defaultName = '', defaultEmai
         disabled={loading}
         className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-dark disabled:opacity-60"
       >
-        {loading ? 'Reservant…' : 'Reservar'}
+        {loading ? t('reservationForm.submitting') : t('reservationForm.submit')}
       </button>
     </form>
   );

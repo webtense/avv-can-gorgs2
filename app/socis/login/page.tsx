@@ -4,9 +4,11 @@ import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import PageShell from '@/components/common/PageShell';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -24,20 +26,20 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'No s\'ha pogut iniciar sessió.');
+        setError(data.error || t('login.genericError'));
         return;
       }
       router.push('/socis');
       router.refresh();
     } catch {
-      setError('Error de connexió. Torna-ho a provar.');
+      setError(t('login.connectionError'));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <PageShell title="Inicia sessió">
+    <PageShell title={t('login.title')}>
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         {error && (
           <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -46,7 +48,7 @@ export default function LoginPage() {
         )}
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-slate-700">
-            Correu electrònic
+            {t('login.email')}
           </label>
           <input
             id="email"
@@ -60,7 +62,7 @@ export default function LoginPage() {
         </div>
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-slate-700">
-            Contrasenya
+            {t('login.password')}
           </label>
           <input
             id="password"
@@ -77,13 +79,13 @@ export default function LoginPage() {
           disabled={loading}
           className="rounded-md bg-primary px-4 py-2 font-medium text-white hover:bg-primary-dark disabled:opacity-60"
         >
-          {loading ? 'Entrant…' : 'Entrar'}
+          {loading ? t('login.submitting') : t('login.submit')}
         </button>
       </form>
       <p className="text-sm text-slate-500">
-        Encara no ets soci?{' '}
+        {t('login.notMember')}{' '}
         <Link href="/socis/registre" className="text-primary underline">
-          Sol·licita l&apos;alta
+          {t('login.requestSignup')}
         </Link>
         .
       </p>

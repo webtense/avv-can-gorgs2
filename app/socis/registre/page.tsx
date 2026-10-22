@@ -3,8 +3,10 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import PageShell from '@/components/common/PageShell';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 export default function RegistrePage() {
+  const { t } = useI18n();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,12 +29,12 @@ export default function RegistrePage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'No s\'ha pogut completar el registre.');
+        setError(data.error || t('registre.genericError'));
         return;
       }
       setSuccess(data.message);
     } catch {
-      setError('Error de connexió. Torna-ho a provar.');
+      setError(t('registre.connectionError'));
     } finally {
       setLoading(false);
     }
@@ -40,11 +42,11 @@ export default function RegistrePage() {
 
   if (success) {
     return (
-      <PageShell title="Sol·licitud enviada">
+      <PageShell title={t('registre.sentTitle')}>
         <p role="status">{success}</p>
         <p>
           <Link href="/" className="text-primary underline">
-            Torna a l&apos;inici
+            {t('registre.backHome')}
           </Link>
         </p>
       </PageShell>
@@ -52,11 +54,8 @@ export default function RegistrePage() {
   }
 
   return (
-    <PageShell title="Fes-te soci">
-      <p>
-        Omple el formulari per sol·licitar l&apos;alta com a soci. La junta revisarà la teva
-        petició abans d&apos;activar el compte.
-      </p>
+    <PageShell title={t('registre.title')}>
+      <p>{t('registre.intro')}</p>
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         {error && (
           <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -66,7 +65,7 @@ export default function RegistrePage() {
 
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-slate-700">
-            Nom i cognoms
+            {t('registre.name')}
           </label>
           <input
             id="name"
@@ -84,7 +83,7 @@ export default function RegistrePage() {
 
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-slate-700">
-            Correu electrònic
+            {t('registre.email')}
           </label>
           <input
             id="email"
@@ -99,7 +98,7 @@ export default function RegistrePage() {
 
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-slate-700">
-            Contrasenya (mínim 10 caràcters)
+            {t('registre.password')}
           </label>
           <input
             id="password"
@@ -115,7 +114,7 @@ export default function RegistrePage() {
 
         <div>
           <label htmlFor="phone" className="block text-sm font-medium text-slate-700">
-            Telèfon (opcional)
+            {t('registre.phone')}
           </label>
           <input
             id="phone"
@@ -138,10 +137,9 @@ export default function RegistrePage() {
             className="mt-1"
           />
           <label htmlFor="gdprConsent" className="text-sm text-slate-700">
-            Accepto que les meves dades es tractin per gestionar la meva condició de soci,
-            d&apos;acord amb la{' '}
+            {t('registre.gdprPrefix')}{' '}
             <Link href="/privacy" className="text-primary underline">
-              política de privacitat
+              {t('registre.gdprLink')}
             </Link>
             .
           </label>
@@ -152,7 +150,7 @@ export default function RegistrePage() {
           disabled={loading}
           className="rounded-md bg-primary px-4 py-2 font-medium text-white hover:bg-primary-dark disabled:opacity-60"
         >
-          {loading ? 'Enviant…' : 'Enviar sol·licitud'}
+          {loading ? t('registre.submitting') : t('registre.submit')}
         </button>
       </form>
     </PageShell>

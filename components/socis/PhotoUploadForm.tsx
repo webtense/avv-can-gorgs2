@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 interface Props {
   events: { id: string; title: string }[];
 }
 
 export default function PhotoUploadForm({ events }: Props) {
+  const { t } = useI18n();
   const [eventId, setEventId] = useState('');
   const [caption, setCaption] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -23,11 +25,11 @@ export default function PhotoUploadForm({ events }: Props) {
     const files = fileInput?.files;
 
     if (!files || files.length === 0) {
-      setError('Selecciona com a mínim una imatge.');
+      setError(t('photoUploadForm.selectAtLeastOne'));
       return;
     }
     if (files.length > 10) {
-      setError('Només es poden pujar 10 imatges per enviament.');
+      setError(t('photoUploadForm.tooMany'));
       return;
     }
 
@@ -43,7 +45,7 @@ export default function PhotoUploadForm({ events }: Props) {
       const res = await fetch('/api/socis/fotos', { method: 'POST', body: formData });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'No s\'han pogut pujar les fotos.');
+        setError(data.error || t('photoUploadForm.genericError'));
         return;
       }
       setSuccess(data.message);
@@ -51,7 +53,7 @@ export default function PhotoUploadForm({ events }: Props) {
       setEventId('');
       setCaption('');
     } catch {
-      setError('Error de connexió. Torna-ho a provar.');
+      setError(t('photoUploadForm.connectionError'));
     } finally {
       setLoading(false);
     }
@@ -72,7 +74,7 @@ export default function PhotoUploadForm({ events }: Props) {
 
       <div>
         <label htmlFor="event" className="block text-sm font-medium text-slate-700">
-          Acte relacionat (opcional)
+          {t('photoUploadForm.eventLabel')}
         </label>
         <select
           id="event"
@@ -80,7 +82,7 @@ export default function PhotoUploadForm({ events }: Props) {
           onChange={(e) => setEventId(e.target.value)}
           className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
         >
-          <option value="">Cap acte en concret</option>
+          <option value="">{t('photoUploadForm.noEvent')}</option>
           {events.map((ev) => (
             <option key={ev.id} value={ev.id}>
               {ev.title}
@@ -91,7 +93,7 @@ export default function PhotoUploadForm({ events }: Props) {
 
       <div>
         <label htmlFor="caption" className="block text-sm font-medium text-slate-700">
-          Descripció (opcional)
+          {t('photoUploadForm.captionLabel')}
         </label>
         <input
           id="caption"
@@ -105,7 +107,7 @@ export default function PhotoUploadForm({ events }: Props) {
 
       <div>
         <label htmlFor="files" className="block text-sm font-medium text-slate-700">
-          Imatges (JPEG, PNG o WebP, màxim 10 MB cadascuna)
+          {t('photoUploadForm.filesLabel')}
         </label>
         <input
           id="files"
@@ -123,7 +125,7 @@ export default function PhotoUploadForm({ events }: Props) {
         disabled={loading}
         className="rounded-md bg-primary px-4 py-2 font-medium text-white hover:bg-primary-dark disabled:opacity-60"
       >
-        {loading ? 'Pujant…' : 'Pujar fotos'}
+        {loading ? t('photoUploadForm.submitting') : t('photoUploadForm.submit')}
       </button>
     </form>
   );
