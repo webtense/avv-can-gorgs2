@@ -8,6 +8,10 @@ import {
   resolveEventProductPriceCents,
   computeEventSessionReport,
   sumEventReports,
+  resolveGiftUnitValueCents,
+  computeProductStock,
+  computeProductEventReportRow,
+  sumProductEventReportRows,
 } from '../lib/tpv';
 
 test('computeSaleTotals suma les línies en cèntims', () => {
@@ -118,4 +122,73 @@ test('sumEventReports suma els torns en el resum de l\'acte', () => {
   assert.strictEqual(total.cashCents, 1500);
   assert.strictEqual(total.ticketCount, 2);
   assert.strictEqual(total.unitsByProduct.a, 3);
+});
+
+test('resolveGiftUnitValueCents fa servir el valor explícit si n\'hi ha', () => {
+  assert.strictEqual(resolveGiftUnitValueCents(1000, 200, 500), 1000);
+});
+
+test('resolveGiftUnitValueCents cau al cost si no hi ha valor explícit', () => {
+  assert.strictEqual(resolveGiftUnitValueCents(null, 200, 500), 200);
+  assert.strictEqual(resolveGiftUnitValueCents(undefined, 200, 500), 200);
+});
+
+test('resolveGiftUnitValueCents cau al preu si no hi ha valor ni cost', () => {
+  assert.strictEqual(resolveGiftUnitValueCents(null, null, 500), 500);
+  assert.strictEqual(resolveGiftUnitValueCents(null, null, null), null);
+});
+
+test('computeProductStock: entrades - sortides - vendes - regals', () => {
+  const stock = computeProductStock([
+    { type: 'entrada', qty: 100 },
+    { type: 'salida', qty: 10 },
+    { type: 'venta', qty: 20 },
+    { type: 'regalo', qty: 50 },
+  ]);
+  assert.strictEqual(stock, 100 - 10 - 20 - 50);
+});
+
+test('computeProductEventReportRow quadra coste i valor de regals SEPARATS (cas del requisit 5)', () => {
+  // 10 sortides manuals.
+  // 20 unitats regalades amb cost 2€/unitat (sense valor explícit -> el
+  // servidor ja hauria resolt unit_value_cents = cost_cents = 200 en crear
+  // el moviment); cost total = valor total = 20 * 200 = 4000 (40,00€).
+  const giftGroup1Cost = 20 * 200;
+  const giftGroup1Value = 20 * 200;
+  // 30 unitats regalades amb valor explícit 10€/unitat i sense cost
+  // registrat; cost total = 0 (null), valor total = 30 * 1000 = 30000 (300€).
+  const giftGroup2Value = 30 * 1000;
+
+  const movements = [
+    { type: 'salida' as const, qty: 10, totalCostCents: null, totalValueCents: null },
+    { type: 'regalo' as const, qty: 20, totalCostCents: giftGroup1Cost, totalValueCents: giftGroup1Value },
+    { type: 'regalo' as const, qty: 30, totalCostCents: null, totalValueCents: giftGroup2Value },
+  ];
+
+  const row = computeProductEventReportRow('cervesa', movements, 0);
+
+  assert.strictEqual(row.unitsOut, 10);
+  assert.strictEqual(row.unitsGifted, 50);
+  // Cost dels regals: només el grup 1 té cost (40,00€); el grup 2 no en té.
+  assert.strictEqual(row.giftCostCents, 4000);
+  // Valor dels regals: suma dels dos grups (40,00€ + 300,00€ = 340,00€).
+  assert.strictEqual(row.giftValueCents, giftGroup1Value + giftGroup2Value);
+  assert.notStrictEqual(row.giftCostCents, row.giftValueCents);
+});
+
+test('sumProductEventReportRows suma ingressos, costos i marge de diversos productes', () => {
+  const row1 = computeProductEventReportRow(
+    'cervesa',
+    [{ type: 'venta', qty: 10, totalCostCents: 1000, totalValueCents: null }],
+    3000
+  );
+  const row2 = computeProductEventReportRow(
+    'coca',
+    [{ type: 'venta', qty: 5, totalCostCents: 250, totalValueCents: null }],
+    1000
+  );
+  const total = sumProductEventReportRows([row1, row2]);
+  assert.strictEqual(total.revenueCents, 4000);
+  assert.strictEqual(total.soldCostCents, 1250);
+  assert.strictEqual(total.marginCents, 4000 - 1250);
 });

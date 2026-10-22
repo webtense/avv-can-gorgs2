@@ -121,6 +121,129 @@ export function sumEventReports(reports: EventSessionReport[]): EventSessionRepo
   return merged;
 }
 
+/**
+ * Resol el valor unitari d'un regal: el valor explícit indicat en marcar la
+ * línia com a regal té prioritat; si no se n'ha indicat cap, es fa servir el
+ * cost unitari del producte; si tampoc hi ha cost, el preu normal (de
+ * catàleg o de l'acte).
+ */
+export function resolveGiftUnitValueCents(
+  explicitValueCents: number | null | undefined,
+  costCents: number | null | undefined,
+  priceCents: number | null | undefined
+): number | null {
+  if (explicitValueCents != null) return explicitValueCents;
+  if (costCents != null) return costCents;
+  return priceCents ?? null;
+}
+
+/** Stock actual d'un producte = entrades - sortides - vendes - regals. */
+export function computeProductStock(movements: Array<{ type: string; qty: number }>): number {
+  let stock = 0;
+  for (const m of movements) {
+    if (m.type === 'entrada') stock += m.qty;
+    else stock -= m.qty;
+  }
+  return stock;
+}
+
+export interface StockMovementForReport {
+  type: 'entrada' | 'salida' | 'venta' | 'regalo';
+  qty: number;
+  /** Cost total del moviment (qty * cost unitari), o null si no hi ha cost. */
+  totalCostCents: number | null;
+  /** Valor total del moviment (només regals: qty * valor unitari), o null. */
+  totalValueCents: number | null;
+}
+
+export interface ProductEventReportRow {
+  productKey: string;
+  unitsOut: number;
+  unitsSold: number;
+  unitsGifted: number;
+  revenueCents: number;
+  giftCostCents: number;
+  giftValueCents: number;
+  soldCostCents: number;
+  marginCents: number;
+}
+
+/**
+ * Agrega els moviments d'estoc d'un producte (per a un acte) més els
+ * ingressos de les seves línies de venda no gratuïtes en una fila de
+ * l'informe per producte. El cost i el valor del regal SEMPRE se sumen a
+ * partir dels totals ja calculats de cada moviment (mai es recalculen des de
+ * qty*unitari aquí), de manera que dos grups de regals amb cost i valor
+ * diferents no es confonguin entre si.
+ */
+export function computeProductEventReportRow(
+  productKey: string,
+  movements: StockMovementForReport[],
+  revenueCents: number
+): ProductEventReportRow {
+  let unitsOut = 0;
+  let unitsSold = 0;
+  let unitsGifted = 0;
+  let giftCostCents = 0;
+  let giftValueCents = 0;
+  let soldCostCents = 0;
+
+  for (const m of movements) {
+    if (m.type === 'salida') {
+      unitsOut += m.qty;
+    } else if (m.type === 'venta') {
+      unitsSold += m.qty;
+      soldCostCents += m.totalCostCents ?? 0;
+    } else if (m.type === 'regalo') {
+      unitsGifted += m.qty;
+      giftCostCents += m.totalCostCents ?? 0;
+      giftValueCents += m.totalValueCents ?? 0;
+    }
+  }
+
+  return {
+    productKey,
+    unitsOut,
+    unitsSold,
+    unitsGifted,
+    revenueCents,
+    giftCostCents,
+    giftValueCents,
+    soldCostCents,
+    marginCents: revenueCents - soldCostCents,
+  };
+}
+
+/** Suma les files per producte de l'informe en el bloc resum de l'acte. */
+export function sumProductEventReportRows(
+  rows: ProductEventReportRow[]
+): Omit<ProductEventReportRow, 'productKey'> {
+  const total = rows.reduce(
+    (acc, r) => ({
+      unitsOut: acc.unitsOut + r.unitsOut,
+      unitsSold: acc.unitsSold + r.unitsSold,
+      unitsGifted: acc.unitsGifted + r.unitsGifted,
+      revenueCents: acc.revenueCents + r.revenueCents,
+      giftCostCents: acc.giftCostCents + r.giftCostCents,
+      giftValueCents: acc.giftValueCents + r.giftValueCents,
+      soldCostCents: acc.soldCostCents + r.soldCostCents,
+      marginCents: 0,
+    }),
+    {
+      unitsOut: 0,
+      unitsSold: 0,
+      unitsGifted: 0,
+      revenueCents: 0,
+      giftCostCents: 0,
+      giftValueCents: 0,
+      soldCostCents: 0,
+      marginCents: 0,
+    }
+  );
+  total.marginCents = total.revenueCents - total.soldCostCents;
+  return total;
+}
+
 export class CashPaymentError extends Error {}
 
 /** Calcula el canvi a retornar. Llança CashPaymentError si l'import entregat és insuficient. */
