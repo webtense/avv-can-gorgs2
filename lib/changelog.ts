@@ -21,6 +21,27 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.5.0',
+    date: '2026-10-22',
+    sections: {
+      features: [
+        'Actes de barra al TPV: catàleg i preus propis per acte (Paella, festes…), selecció de l\'acte actiu en obrir caixa',
+        'Línies de venda marcades com a "Gratis" (regal): no sumen a la recaptació però queden registrades per a l\'informe',
+        'Informe final per acte de barra amb exportació a CSV: unitats venudes i regalades, recaptació, valor dels regals, tiquet mitjà',
+      ],
+      fixes: [],
+      internal: [],
+      es: {
+        features: [
+          'Eventos de barra en el TPV: catálogo y precios propios por evento (Paella, fiestas…), selección del evento activo al abrir caja',
+          'Líneas de venta marcadas como "Gratis" (regalo): no suman a la recaudación pero quedan registradas para el informe',
+          'Informe final por evento de barra con exportación a CSV: unidades vendidas y regaladas, recaudación, valor de los regalos, ticket medio',
+        ],
+        fixes: [],
+      },
+    },
+  },
+  {
     version: '1.4.0',
     date: '2026-10-22',
     sections: {
