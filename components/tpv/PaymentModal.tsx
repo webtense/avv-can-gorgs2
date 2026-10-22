@@ -7,6 +7,7 @@ import { formatCents } from '@/lib/tpv';
 interface CartEntry {
   product: { id: string; name: string; priceCents: number };
   qty: number;
+  isFree: boolean;
 }
 
 export default function PaymentModal({
@@ -37,6 +38,8 @@ export default function PaymentModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const giftCents = cartEntries.reduce((sum, e) => (e.isFree ? sum + e.product.priceCents * e.qty : sum), 0);
+
   const paidCents = useMemo(() => {
     const euros = Number(paidInput.replace(',', '.'));
     if (!Number.isFinite(euros) || euros < 0) return 0;
@@ -62,7 +65,7 @@ export default function PaymentModal({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: cartEntries.map((e) => ({ productId: e.product.id, qty: e.qty })),
+          items: cartEntries.map((e) => ({ productId: e.product.id, qty: e.qty, isFree: e.isFree })),
           paidCents,
         }),
       });
@@ -99,6 +102,12 @@ export default function PaymentModal({
           <span>{t('tpv.payment.amountDue')}</span>
           <span className="font-bold">{formatCents(totalCents)}</span>
         </div>
+        {giftCents > 0 && (
+          <div className="mt-1 flex items-center justify-between text-sm text-emerald-700">
+            <span>{t('tpv.payment.giftValue')}</span>
+            <span>{formatCents(giftCents)}</span>
+          </div>
+        )}
 
         <label htmlFor="paid" className="mt-4 block text-sm font-medium text-slate-700">
           {t('tpv.payment.amountPaid')}
