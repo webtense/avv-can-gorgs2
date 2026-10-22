@@ -107,6 +107,7 @@ model members {
   cash_sessions_closed cash_sessions[] @relation("cash_sessions_closed_by")
   tpv_sales            tpv_sales[]
   mail_log        mail_log[]
+  member_fees          member_fees[]
 
   @@index([status], map: "idx_members_status")
 }
@@ -218,6 +219,108 @@ model mail_log {
   @@index([member_id], map: "idx_mail_log_member_id")
   @@index([status], map: "idx_mail_log_status")
   @@index([campaign_id], map: "idx_mail_log_campaign_id")
+}
+
+model accounting_config {
+  id               Int      @id @default(1)
+  fee_amount_cents Int?
+  fee_periodicity  String   @default("anual")
+  updated_at       DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model member_fees {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  member_id      String    @db.Uuid
+  period         String
+  amount_cents   Int
+  status         String    @default("pendent")
+  paid_at        DateTime? @db.Timestamptz(6)
+  method         String?
+  receipt_number String?
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  members        members   @relation(fields: [member_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([member_id, period])
+  @@index([period], map: "idx_member_fees_period")
+  @@index([status], map: "idx_member_fees_status")
+  @@index([member_id], map: "idx_member_fees_member_id")
+}
+
+model invoices_issued {
+  id                String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  number            String                  @unique
+  issue_date        DateTime                @db.Date
+  recipient_name    String
+  recipient_nif     String?
+  recipient_address String?
+  subtotal_cents    Int                     @default(0)
+  vat_cents         Int                     @default(0)
+  total_cents       Int                     @default(0)
+  status            String                  @default("emesa")
+  notes             String?
+  rectifies_id      String?                 @db.Uuid
+  created_at        DateTime                @default(now()) @db.Timestamptz(6)
+  lines             invoice_issued_lines[]
+  rectifies         invoices_issued?        @relation("InvoiceRectification", fields: [rectifies_id], references: [id], onUpdate: NoAction)
+  rectified_by      invoices_issued[]       @relation("InvoiceRectification")
+
+  @@index([status], map: "idx_invoices_issued_status")
+  @@index([issue_date], map: "idx_invoices_issued_issue_date")
+}
+
+model invoice_issued_lines {
+  id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  invoice_id       String          @db.Uuid
+  description      String
+  qty              Int
+  unit_price_cents Int
+  base_cents       Int
+  vat_rate_percent Int
+  vat_cents        Int
+  line_total_cents Int
+  position         Int             @default(0)
+  invoices_issued  invoices_issued @relation(fields: [invoice_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([invoice_id], map: "idx_invoice_issued_lines_invoice_id")
+}
+
+model invoice_number_sequences {
+  series     String @id
+  last_value Int    @default(0)
+}
+
+model invoices_received {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  supplier_name  String
+  supplier_nif   String?
+  invoice_number String
+  issue_date     DateTime  @db.Date
+  due_date       DateTime? @db.Date
+  base_cents     Int
+  vat_rate_percent Int
+  vat_cents      Int       @default(0)
+  total_cents    Int
+  status         String    @default("pendent")
+  paid_at        DateTime? @db.Timestamptz(6)
+  method         String?
+  file_path      String
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@index([status], map: "idx_invoices_received_status")
+  @@index([issue_date], map: "idx_invoices_received_issue_date")
+  @@index([supplier_name], map: "idx_invoices_received_supplier")
+}
+
+model accounting_audit {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actor_member_id String?  @db.Uuid
+  action          String
+  entity          String
+  entity_id       String?  @db.Uuid
+  created_at      DateTime @default(now()) @db.Timestamptz(6)
+  detail          String?
+
+  @@index([entity, entity_id], map: "idx_accounting_audit_entity")
 }
 
 model reservations {
