@@ -1,3 +1,13 @@
+/**
+ * Remitent per defecte dels correus enviats des del mòdul de comunicacions
+ * (/admin/correu). Es poden sobreescriure amb les variables d'entorn
+ * MAIL_FROM_EMAIL i MAIL_FROM_NAME; cap de les dues conté cap valor sensible.
+ */
+export const mailConfig = {
+  fromEmail: process.env.MAIL_FROM_EMAIL || 'avvcangorgsii@gmail.com',
+  fromName: process.env.MAIL_FROM_NAME || 'AVV Can Gorgs II',
+};
+
 export const siteConfig = {
   name: 'AVV Can Gorgs II',
   fullName: 'Associació de Veïns de Can Gorgs II',

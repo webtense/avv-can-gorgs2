@@ -21,6 +21,29 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.5.1',
+    date: '2026-10-23',
+    sections: {
+      features: [
+        'Nou mòdul de correu per a socis a /admin/correu: plantilles, enviament individual o a tots els socis actius, adjunts PDF i historial d\'enviaments',
+        'Enviament via Brevo (API REST), amb previsualització i confirmació obligatòria abans d\'enviar',
+        'Els socis poden excloure\'s de les comunicacions informatives; aquesta exclusió es respecta sempre',
+      ],
+      fixes: [],
+      internal: [
+        'Noves taules mail_templates i mail_log, i columna members.mail_opt_out (migració aditiva)',
+      ],
+      es: {
+        features: [
+          'Nuevo módulo de correo para socios en /admin/correu: plantillas, envío individual o a todos los socios activos, adjuntos PDF e historial de envíos',
+          'Envío vía Brevo (API REST), con previsualización y confirmación obligatoria antes de enviar',
+          'Los socios pueden excluirse de las comunicaciones informativas; esta exclusión se respeta siempre',
+        ],
+        fixes: [],
+      },
+    },
+  },
+  {
     version: '1.4.0',
     date: '2026-10-22',
     sections: {
