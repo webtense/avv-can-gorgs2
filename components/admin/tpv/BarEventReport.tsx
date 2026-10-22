@@ -17,10 +17,24 @@ interface SessionReport {
   giftUnitsByProduct: Record<string, number>;
 }
 
+interface ProductReportRow {
+  productKey: string;
+  unitsOut: number;
+  unitsSold: number;
+  unitsGifted: number;
+  revenueCents: number;
+  giftCostCents: number;
+  giftValueCents: number;
+  soldCostCents: number;
+  marginCents: number;
+}
+
 interface ReportData {
   event: { id: string; title: string; eventDate: string | null };
   sessions: SessionReport[];
   total: Omit<SessionReport, 'sessionId' | 'operatorName' | 'openedAt' | 'closedAt'>;
+  products: ProductReportRow[];
+  productsTotal: Omit<ProductReportRow, 'productKey'>;
 }
 
 /**
@@ -125,6 +139,76 @@ export default function BarEventReport({ eventId, onClose }: { eventId: string; 
                 ))}
               </tbody>
             </table>
+          </div>
+
+          <div className="mt-6 overflow-x-auto">
+            <h4 className="mb-2 text-sm font-semibold text-slate-700">
+              {t('admin.tpv.barEvents.productReportTitle')}
+            </h4>
+            <table className="min-w-full divide-y divide-slate-200 text-sm">
+              <thead>
+                <tr className="text-left text-slate-500">
+                  <th className="py-2 pr-2">{t('admin.tpv.colName')}</th>
+                  <th className="py-2 pr-2">{t('admin.tpv.barEvents.colUnitsOut')}</th>
+                  <th className="py-2 pr-2">{t('admin.tpv.barEvents.colUnitsSold')}</th>
+                  <th className="py-2 pr-2">{t('admin.tpv.barEvents.colRevenue')}</th>
+                  <th className="py-2 pr-2">{t('admin.tpv.barEvents.colUnitsGifted')}</th>
+                  <th className="py-2 pr-2">{t('admin.tpv.barEvents.colGiftCost')}</th>
+                  <th className="py-2 pr-2">{t('admin.tpv.barEvents.colGiftValue')}</th>
+                  <th className="py-2 pr-2">{t('admin.tpv.barEvents.colSoldCost')}</th>
+                  <th className="py-2 pr-2">{t('admin.tpv.barEvents.colMargin')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {data.products.map((row) => (
+                  <tr key={row.productKey}>
+                    <td className="py-2 pr-2">{row.productKey}</td>
+                    <td className="py-2 pr-2">{row.unitsOut}</td>
+                    <td className="py-2 pr-2">{row.unitsSold}</td>
+                    <td className="py-2 pr-2">{formatCents(row.revenueCents)}</td>
+                    <td className="py-2 pr-2">{row.unitsGifted}</td>
+                    <td className="py-2 pr-2 text-emerald-700">{formatCents(row.giftCostCents)}</td>
+                    <td className="py-2 pr-2 text-emerald-700">{formatCents(row.giftValueCents)}</td>
+                    <td className="py-2 pr-2">{formatCents(row.soldCostCents)}</td>
+                    <td className="py-2 pr-2 font-medium">{formatCents(row.marginCents)}</td>
+                  </tr>
+                ))}
+                <tr className="font-bold">
+                  <td className="py-2 pr-2">{t('admin.tpv.barEvents.total')}</td>
+                  <td className="py-2 pr-2">{data.productsTotal.unitsOut}</td>
+                  <td className="py-2 pr-2">{data.productsTotal.unitsSold}</td>
+                  <td className="py-2 pr-2">{formatCents(data.productsTotal.revenueCents)}</td>
+                  <td className="py-2 pr-2">{data.productsTotal.unitsGifted}</td>
+                  <td className="py-2 pr-2 text-emerald-700">{formatCents(data.productsTotal.giftCostCents)}</td>
+                  <td className="py-2 pr-2 text-emerald-700">{formatCents(data.productsTotal.giftValueCents)}</td>
+                  <td className="py-2 pr-2">{formatCents(data.productsTotal.soldCostCents)}</td>
+                  <td className="py-2 pr-2">{formatCents(data.productsTotal.marginCents)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 gap-3 rounded-md bg-slate-50 p-4 text-sm sm:grid-cols-3">
+            <div>
+              <p className="text-slate-500">{t('admin.tpv.barEvents.summaryRevenue')}</p>
+              <p className="font-bold text-slate-900">{formatCents(data.productsTotal.revenueCents)}</p>
+            </div>
+            <div>
+              <p className="text-slate-500">{t('admin.tpv.barEvents.summaryCost')}</p>
+              <p className="font-bold text-slate-900">{formatCents(data.productsTotal.soldCostCents)}</p>
+            </div>
+            <div>
+              <p className="text-slate-500">{t('admin.tpv.barEvents.summaryGiftCost')}</p>
+              <p className="font-bold text-emerald-700">{formatCents(data.productsTotal.giftCostCents)}</p>
+            </div>
+            <div>
+              <p className="text-slate-500">{t('admin.tpv.barEvents.summaryGiftValue')}</p>
+              <p className="font-bold text-emerald-700">{formatCents(data.productsTotal.giftValueCents)}</p>
+            </div>
+            <div>
+              <p className="text-slate-500">{t('admin.tpv.barEvents.summaryMargin')}</p>
+              <p className="font-bold text-slate-900">{formatCents(data.productsTotal.marginCents)}</p>
+            </div>
           </div>
         </>
       )}
