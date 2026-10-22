@@ -3,11 +3,12 @@ import { apiError } from '@/lib/i18n/api-error';
 import { prisma } from '@/lib/db';
 import { isSameOriginRequest } from '@/lib/csrf';
 import { getTpvOperator } from '@/lib/auth/session';
-import { computeSaleTotals, computeChange, CashPaymentError } from '@/lib/tpv';
+import { computeSaleTotals, computeChange, resolveEventProductPriceCents, CashPaymentError } from '@/lib/tpv';
 
 interface CartItemInput {
   productId: string;
   qty: number;
+  isFree?: boolean;
 }
 
 /**
@@ -47,14 +48,15 @@ export async function POST(request: NextRequest) {
     return apiError('tpvInvalidAmount', 400);
   }
 
-  // Validació bàsica de les línies rebudes.
+  // Validació bàsica de les línies rebudes. `isFree` només es llegeix com a
+  // senyal; el preu i el total sempre els recalcula el servidor.
   const normalizedItems: CartItemInput[] = [];
   for (const item of items) {
     const productId = String(item?.productId || '');
     const qty = Number(item?.qty);
     if (!productId) return apiError('invalidData', 400);
     if (!Number.isInteger(qty) || qty < 1) return apiError('tpvInvalidQty', 400);
-    normalizedItems.push({ productId, qty });
+    normalizedItems.push({ productId, qty, isFree: Boolean(item?.isFree) });
   }
 
   const productIds = normalizedItems.map((i) => i.productId);
@@ -63,18 +65,49 @@ export async function POST(request: NextRequest) {
   });
   const productById = new Map(products.map((p) => [p.id, p]));
 
+  // Si el torn té un acte de barra actiu, el catàleg i els preus són els de
+  // l'acte (amb override si en té); si no, el catàleg habitual.
+  let eventPriceById: Map<string, number | null> | null = null;
+  if (session.event_id) {
+    const eventProducts = await prisma.tpv_event_products.findMany({
+      where: { event_id: session.event_id, product_id: { in: productIds } },
+    });
+    eventPriceById = new Map(
+      eventProducts.map((ep) => {
+        const product = productById.get(ep.product_id);
+        const price = resolveEventProductPriceCents(product?.price_cents ?? null, ep.price_cents_override);
+        return [ep.product_id, price];
+      })
+    );
+  }
+
   const lines = [];
   for (const item of normalizedItems) {
     const product = productById.get(item.productId);
     if (!product) return apiError('tpvProductNotFound', 404);
-    if (!product.active || product.price_cents === null) {
+
+    let unitPriceCents: number | null;
+    if (eventPriceById) {
+      if (!eventPriceById.has(item.productId)) {
+        return apiError('tpvProductNotInEvent', 400);
+      }
+      unitPriceCents = eventPriceById.get(item.productId) ?? null;
+    } else {
+      if (!product.active || product.price_cents === null) {
+        return apiError('tpvProductInactive', 400);
+      }
+      unitPriceCents = product.price_cents;
+    }
+    if (unitPriceCents === null) {
       return apiError('tpvProductInactive', 400);
     }
+
     lines.push({
       productId: product.id,
       name: product.name,
-      unitPriceCents: product.price_cents,
+      unitPriceCents,
       qty: item.qty,
+      isFree: item.isFree,
     });
   }
 
@@ -104,6 +137,7 @@ export async function POST(request: NextRequest) {
           unit_price_cents: l.unitPriceCents,
           qty: l.qty,
           line_total_cents: l.lineTotalCents,
+          is_free: Boolean(l.isFree),
         })),
       },
     },

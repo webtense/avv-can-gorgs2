@@ -16,6 +16,7 @@ export interface TpvProduct {
 interface CartEntry {
   product: TpvProduct;
   qty: number;
+  isFree: boolean;
 }
 
 interface CompletedSale {
@@ -31,9 +32,11 @@ interface CompletedSale {
 export default function TpvClient({
   operatorName,
   products,
+  eventTitle,
 }: {
   operatorName: string;
   products: TpvProduct[];
+  eventTitle?: string | null;
 }) {
   const { t } = useI18n();
   const [cart, setCart] = useState<Record<string, CartEntry>>({});
@@ -41,15 +44,23 @@ export default function TpvClient({
   const [completedSale, setCompletedSale] = useState<CompletedSale | null>(null);
 
   const cartEntries = useMemo(() => Object.values(cart), [cart]);
-  const totalCents = cartEntries.reduce((sum, e) => sum + e.product.priceCents * e.qty, 0);
+  const totalCents = cartEntries.reduce((sum, e) => sum + (e.isFree ? 0 : e.product.priceCents * e.qty), 0);
 
   function addToCart(product: TpvProduct) {
     setCart((prev) => {
       const existing = prev[product.id];
       return {
         ...prev,
-        [product.id]: { product, qty: (existing?.qty ?? 0) + 1 },
+        [product.id]: { product, qty: (existing?.qty ?? 0) + 1, isFree: existing?.isFree ?? false },
       };
+    });
+  }
+
+  function toggleFree(productId: string) {
+    setCart((prev) => {
+      const existing = prev[productId];
+      if (!existing) return prev;
+      return { ...prev, [productId]: { ...existing, isFree: !existing.isFree } };
     });
   }
 
@@ -90,7 +101,12 @@ export default function TpvClient({
     <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:px-8">
       <div className="flex-1">
         <div className="mb-3 flex items-center justify-between">
-          <h1 className="font-serif text-xl font-bold text-slate-900">{t('admin.tpv.title')}</h1>
+          <div>
+            <h1 className="font-serif text-xl font-bold text-slate-900">{t('admin.tpv.title')}</h1>
+            {eventTitle && (
+              <p className="text-sm font-medium text-primary">{t('tpv.sale.activeEvent')}: {eventTitle}</p>
+            )}
+          </div>
           <a href="/tpv/caixa" className="text-sm text-primary underline">
             {t('tpv.closing.title')}
           </a>
@@ -116,11 +132,13 @@ export default function TpvClient({
           <p className="mt-4 text-sm text-slate-500">{t('tpv.sale.empty')}</p>
         ) : (
           <ul className="mt-4 space-y-3">
-            {cartEntries.map(({ product, qty }) => (
-              <li key={product.id} className="flex items-center justify-between gap-2">
+            {cartEntries.map(({ product, qty, isFree }) => (
+              <li key={product.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2 last:border-0">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-slate-900">{product.name}</p>
-                  <p className="text-xs text-slate-500">{formatCents(product.priceCents * qty)}</p>
+                  <p className={`text-xs ${isFree ? 'text-emerald-700 line-through' : 'text-slate-500'}`}>
+                    {formatCents(product.priceCents * qty)}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -141,6 +159,15 @@ export default function TpvClient({
                     +
                   </button>
                 </div>
+                <label className="flex w-full items-center gap-2 text-xs font-medium text-slate-600 sm:w-auto">
+                  <input
+                    type="checkbox"
+                    checked={isFree}
+                    onChange={() => toggleFree(product.id)}
+                    className="h-5 w-5"
+                  />
+                  {t('tpv.sale.free')}
+                </label>
               </li>
             ))}
           </ul>

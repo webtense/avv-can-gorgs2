@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db';
 import { getLocale, getMessages } from '@/lib/i18n';
 import ProductsAdmin from '@/components/admin/tpv/ProductsAdmin';
 import SessionsReport from '@/components/admin/tpv/SessionsReport';
+import BarEventsAdmin from '@/components/admin/tpv/BarEventsAdmin';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,6 +59,12 @@ export default async function AdminTpvPage() {
           active: p.active,
           sort: p.sort,
         }))}
+      />
+
+      <BarEventsAdmin
+        products={products
+          .filter((p) => p.active)
+          .map((p) => ({ id: p.id, name: p.name, category: p.category, priceCents: p.price_cents }))}
       />
 
       <SessionsReport sessions={sessionRows} />

@@ -1,16 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/components/i18n/I18nProvider';
+
+interface BarEventOption {
+  id: string;
+  title: string;
+  eventDate: string | null;
+}
 
 /** Pantalla per obrir un nou torn de caixa quan no n'hi ha cap d'obert. */
 export default function OpenSessionForm() {
   const { t } = useI18n();
   const router = useRouter();
   const [amount, setAmount] = useState('');
+  const [eventId, setEventId] = useState('');
+  const [barEvents, setBarEvents] = useState<BarEventOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/tpv/bar-events/active')
+      .then((res) => (res.ok ? res.json() : { events: [] }))
+      .then((data) => setBarEvents(data.events || []))
+      .catch(() => setBarEvents([]));
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,7 +43,7 @@ export default function OpenSessionForm() {
       const res = await fetch('/api/tpv/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ openingFloatCents }),
+        body: JSON.stringify({ openingFloatCents, eventId: eventId || null }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -58,6 +73,25 @@ export default function OpenSessionForm() {
             className="mt-1 w-full rounded-md border border-slate-300 px-3 py-3 text-lg"
             placeholder="0,00"
           />
+        </div>
+        <div>
+          <label htmlFor="barEvent" className="block text-sm font-medium text-slate-700">
+            {t('tpv.openSession.eventLabel')}
+          </label>
+          <select
+            id="barEvent"
+            value={eventId}
+            onChange={(e) => setEventId(e.target.value)}
+            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-3 text-base"
+          >
+            <option value="">{t('tpv.openSession.eventNone')}</option>
+            {barEvents.map((ev) => (
+              <option key={ev.id} value={ev.id}>
+                {ev.title}
+                {ev.eventDate ? ` (${new Date(ev.eventDate).toLocaleDateString('ca-ES')})` : ''}
+              </option>
+            ))}
+          </select>
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <button
