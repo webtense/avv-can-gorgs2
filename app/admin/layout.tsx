@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getAdminMember } from '@/lib/auth/session';
+import { getLocale, getMessages } from '@/lib/i18n';
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const admin = await getAdminMember();
@@ -9,20 +10,24 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     redirect('/socis/login');
   }
 
+  const locale = await getLocale();
+  const messages = getMessages(locale);
+  const t = messages.admin.nav;
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
-      <nav aria-label="Navegació d'administració" className="mb-6 flex flex-wrap gap-4 text-sm">
+      <nav aria-label={t.aria} className="mb-6 flex flex-wrap gap-4 text-sm">
         <Link href="/admin" className="text-primary underline">
-          Inici admin
+          {t.home}
         </Link>
         <Link href="/admin/socis" className="text-primary underline">
-          Socis
+          {t.members}
         </Link>
         <Link href="/admin/events" className="text-primary underline">
-          Actes
+          {t.events}
         </Link>
         <Link href="/admin/fotos" className="text-primary underline">
-          Fotos
+          {t.fotos}
         </Link>
       </nav>
       {children}

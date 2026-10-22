@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useI18n } from '@/components/i18n/I18nProvider';
 
 export default function PhotoModerationActions({ id, approved }: { id: string; approved: boolean }) {
   const router = useRouter();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(false);
 
   async function approve() {
@@ -22,7 +24,7 @@ export default function PhotoModerationActions({ id, approved }: { id: string; a
   }
 
   async function remove() {
-    if (!confirm('Segur que vols esborrar aquesta foto?')) return;
+    if (!confirm(t('admin.fotos.confirmDelete'))) return;
     setLoading(true);
     try {
       await fetch(`/api/admin/fotos?id=${id}`, { method: 'DELETE' });
@@ -41,7 +43,7 @@ export default function PhotoModerationActions({ id, approved }: { id: string; a
           onClick={approve}
           className="rounded-md bg-emerald-600 px-2 py-0.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
         >
-          Aprovar
+          {t('admin.fotos.approve')}
         </button>
       )}
       <button
@@ -50,7 +52,7 @@ export default function PhotoModerationActions({ id, approved }: { id: string; a
         onClick={remove}
         className="rounded-md bg-red-500 px-2 py-0.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-60"
       >
-        Esborrar
+        {t('admin.fotos.remove')}
       </button>
     </div>
   );
