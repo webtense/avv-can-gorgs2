@@ -4,7 +4,7 @@ export const siteConfig = {
   address: 'Carrer de la Torre d\'en Gorgs, 40 · 08210 Barberà del Vallès',
   email: 'avvcangorgsii@gmail.com' as string | null,
   phone: null as string | null,
-  taxId: null as string | null,
+  taxId: 'G59495218' as string | null,
 };
 
 export const navigation = [
