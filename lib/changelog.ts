@@ -21,6 +21,29 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.5.3',
+    date: '2026-10-23',
+    sections: {
+      features: [
+        'Cost de compra editable per producte al catàleg del TPV, junt amb el preu',
+        'Control d\'estoc: entrades i sortides manuals des de /admin/tpv i estoc actual calculat (entrades − sortides − vendes − regals)',
+        'Valor propi del regal: en marcar una línia com a "Gratis" es pot indicar el seu valor (per defecte, el cost; si no n\'hi ha, el preu)',
+        'Informe de l\'acte de barra ampliat amb cost i marge per producte (sortides, venut, regalat a cost i a valor, marge) i un resum econòmic de l\'acte, també a l\'exportació CSV',
+      ],
+      fixes: [],
+      internal: [],
+      es: {
+        features: [
+          'Coste de compra editable por producto en el catálogo del TPV, junto al precio',
+          'Control de stock: entradas y salidas manuales desde /admin/tpv y stock actual calculado (entradas − salidas − ventas − regalos)',
+          'Valor propio del regalo: al marcar una línea como "Gratis" se puede indicar su valor (por defecto, el coste; si no hay, el precio)',
+          'Informe del evento de barra ampliado con coste y margen por producto (salidas, vendido, regalado a coste y a valor, margen) y un resumen económico del evento, también en la exportación CSV',
+        ],
+        fixes: [],
+      },
+    },
+  },
+  {
     version: '1.5.2',
     date: '2026-10-22',
     sections: {

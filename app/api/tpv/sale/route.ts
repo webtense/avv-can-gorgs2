@@ -3,12 +3,20 @@ import { apiError } from '@/lib/i18n/api-error';
 import { prisma } from '@/lib/db';
 import { isSameOriginRequest } from '@/lib/csrf';
 import { getTpvOperator } from '@/lib/auth/session';
-import { computeSaleTotals, computeChange, resolveEventProductPriceCents, CashPaymentError } from '@/lib/tpv';
+import {
+  computeSaleTotals,
+  computeChange,
+  resolveEventProductPriceCents,
+  resolveGiftValueCents,
+  CashPaymentError,
+} from '@/lib/tpv';
 
 interface CartItemInput {
   productId: string;
   qty: number;
   isFree?: boolean;
+  /** Valor unitari propi del regal (cèntims), opcional, només si isFree. */
+  giftValueCents?: number;
 }
 
 /**
@@ -56,7 +64,14 @@ export async function POST(request: NextRequest) {
     const qty = Number(item?.qty);
     if (!productId) return apiError('invalidData', 400);
     if (!Number.isInteger(qty) || qty < 1) return apiError('tpvInvalidQty', 400);
-    normalizedItems.push({ productId, qty, isFree: Boolean(item?.isFree) });
+    const isFree = Boolean(item?.isFree);
+    let giftValueCents: number | undefined;
+    if (isFree && item?.giftValueCents !== undefined && item?.giftValueCents !== null) {
+      const v = Number(item.giftValueCents);
+      if (!Number.isInteger(v) || v < 0) return apiError('tpvInvalidAmount', 400);
+      giftValueCents = v;
+    }
+    normalizedItems.push({ productId, qty, isFree, giftValueCents });
   }
 
   const productIds = normalizedItems.map((i) => i.productId);
@@ -108,6 +123,8 @@ export async function POST(request: NextRequest) {
       unitPriceCents,
       qty: item.qty,
       isFree: item.isFree,
+      costCents: product.cost_cents,
+      giftValueCents: item.giftValueCents,
     });
   }
 
@@ -123,25 +140,67 @@ export async function POST(request: NextRequest) {
     throw err;
   }
 
-  const sale = await prisma.tpv_sales.create({
-    data: {
-      session_id: session.id,
-      operator_id: operator.id,
-      total_cents: totals.totalCents,
-      paid_cents: paidCents,
-      change_cents: changeCents,
-      lines: {
-        create: totals.lines.map((l) => ({
-          product_id: l.productId,
-          name: l.name,
-          unit_price_cents: l.unitPriceCents,
-          qty: l.qty,
-          line_total_cents: l.lineTotalCents,
-          is_free: Boolean(l.isFree),
-        })),
+  // Cada línia (venda o regal) genera, dins la mateixa transacció, un
+  // moviment d'estoc: `venta` resta del catàleg i té com a "valor" els
+  // ingressos; `regalo` resta del catàleg i congela el cost de compra i el
+  // valor del regal (propi si l'operador l'ha indicat, o resolt per defecte).
+  const sale = await prisma.$transaction(async (tx) => {
+    const created = await tx.tpv_sales.create({
+      data: {
+        session_id: session.id,
+        operator_id: operator.id,
+        total_cents: totals.totalCents,
+        paid_cents: paidCents,
+        change_cents: changeCents,
+        lines: {
+          create: totals.lines.map((l) => ({
+            product_id: l.productId,
+            name: l.name,
+            unit_price_cents: l.unitPriceCents,
+            qty: l.qty,
+            line_total_cents: l.lineTotalCents,
+            is_free: Boolean(l.isFree),
+          })),
+        },
       },
-    },
-    include: { lines: true },
+      include: { lines: true },
+    });
+
+    for (const l of totals.lines) {
+      if (l.isFree) {
+        const resolvedValueCents = resolveGiftValueCents(l.giftValueCents, l.costCents, l.unitPriceCents);
+        await tx.tpv_stock_movements.create({
+          data: {
+            product_id: l.productId,
+            event_id: session.event_id,
+            session_id: session.id,
+            type: 'regalo',
+            qty: l.qty,
+            unit_cost_cents: l.costCents,
+            unit_value_cents: l.giftValueCents ?? null,
+            total_cost_cents: (l.costCents ?? 0) * l.qty,
+            total_value_cents: resolvedValueCents * l.qty,
+            created_by: operator.id,
+          },
+        });
+      } else {
+        await tx.tpv_stock_movements.create({
+          data: {
+            product_id: l.productId,
+            event_id: session.event_id,
+            session_id: session.id,
+            type: 'venta',
+            qty: l.qty,
+            unit_cost_cents: l.costCents,
+            total_cost_cents: (l.costCents ?? 0) * l.qty,
+            total_value_cents: l.lineTotalCents,
+            created_by: operator.id,
+          },
+        });
+      }
+    }
+
+    return created;
   });
 
   return NextResponse.json({ sale });

@@ -81,6 +81,7 @@ model events {
   event_photos       event_photos[]
   tpv_event_products tpv_event_products[]
   cash_sessions      cash_sessions[]
+  tpv_stock_movements tpv_stock_movements[]
 
   @@index([event_year], map: "idx_events_event_year")
   @@index([festival_id], map: "idx_events_festival_id")
@@ -106,6 +107,7 @@ model members {
   cash_sessions_opened cash_sessions[] @relation("cash_sessions_opened_by")
   cash_sessions_closed cash_sessions[] @relation("cash_sessions_closed_by")
   tpv_sales            tpv_sales[]
+  tpv_stock_movements_created tpv_stock_movements[]
   mail_log        mail_log[]
 
   @@index([status], map: "idx_members_status")
@@ -117,12 +119,41 @@ model tpv_products {
   name           String
   category       String?
   price_cents    Int?
+  cost_cents     Int?
   active         Boolean         @default(false)
   sort           Int             @default(0)
   created_at     DateTime        @default(now()) @db.Timestamptz(6)
   updated_at     DateTime        @default(now()) @db.Timestamptz(6)
   tpv_sale_lines tpv_sale_lines[]
   tpv_event_products tpv_event_products[]
+  tpv_stock_movements tpv_stock_movements[]
+}
+
+/// Moviments d'estoc d'un producte del TPV: entrades/sortides manuals i els
+/// generats automàticament per vendes i regals. El cost i el valor es
+/// congelen en el moment del moviment (còpia de `cost_cents` del producte).
+model tpv_stock_movements {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  product_id        String        @db.Uuid
+  event_id          String?       @db.Uuid
+  session_id        String?       @db.Uuid
+  type              String
+  qty               Int
+  unit_cost_cents   Int?
+  unit_value_cents  Int?
+  total_cost_cents  Int
+  total_value_cents Int
+  note              String?
+  created_by        String?       @db.Uuid
+  created_at        DateTime      @default(now()) @db.Timestamptz(6)
+  product           tpv_products  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  event             events?       @relation(fields: [event_id], references: [id])
+  session           cash_sessions? @relation(fields: [session_id], references: [id])
+  creator           members?      @relation(fields: [created_by], references: [id])
+
+  @@index([product_id], map: "idx_tpv_stock_movements_product_id")
+  @@index([event_id], map: "idx_tpv_stock_movements_event_id")
+  @@index([session_id], map: "idx_tpv_stock_movements_session_id")
 }
 
 /// Productes del catàleg habilitats per a un acte de barra concret, amb preu propi opcional.
@@ -154,6 +185,7 @@ model cash_sessions {
   opener              members    @relation("cash_sessions_opened_by", fields: [opened_by], references: [id])
   closer              members?   @relation("cash_sessions_closed_by", fields: [closed_by], references: [id])
   tpv_sales           tpv_sales[]
+  tpv_stock_movements tpv_stock_movements[]
 
   @@index([opened_at], map: "idx_cash_sessions_opened_at")
   @@index([event_id], map: "idx_cash_sessions_event_id")

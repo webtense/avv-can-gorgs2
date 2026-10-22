@@ -2,7 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { apiError } from '@/lib/i18n/api-error';
 import { prisma } from '@/lib/db';
 import { getAdminMember } from '@/lib/auth/session';
-import { computeEventSessionReport, sumEventReports, formatCents, type ReportSale } from '@/lib/tpv';
+import {
+  computeEventSessionReport,
+  sumEventReports,
+  computeProductCostReport,
+  formatCents,
+  type ReportSale,
+  type StockMovementRow,
+  type StockMovementType,
+} from '@/lib/tpv';
 
 /**
  * GET: informe final d'un acte de barra (admin): per cada torn de caixa i el
@@ -54,6 +62,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   const totalReport = sumEventReports(sessionReports);
 
+  const movements = await prisma.tpv_stock_movements.findMany({
+    where: { event_id: id },
+    include: { product: { select: { name: true } } },
+  });
+  const movementRows: StockMovementRow[] = movements.map((m) => ({
+    productKey: m.product.name,
+    type: m.type as StockMovementType,
+    qty: m.qty,
+    totalCostCents: m.total_cost_cents,
+    totalValueCents: m.total_value_cents,
+  }));
+  const productReport = computeProductCostReport(totalReport, movementRows);
+
   const { searchParams } = new URL(request.url);
   if (searchParams.get('format') === 'csv') {
     const lines: string[] = [];
@@ -84,18 +105,41 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       ].join(';')
     );
     lines.push('');
-    lines.push('Producte;Unitats venudes;Unitats regalades');
-    const productKeys = new Set([
-      ...Object.keys(totalReport.unitsByProduct),
-      ...Object.keys(totalReport.giftUnitsByProduct),
-    ]);
-    for (const key of productKeys) {
+    lines.push(
+      'Producte;Sortides;Unitats venudes;Ingressos;Unitats regalades;Cost regalat;Valor regalat;Cost venut;Marge'
+    );
+    for (const row of productReport.rows) {
       lines.push(
-        [key, String(totalReport.unitsByProduct[key] ?? 0), String(totalReport.giftUnitsByProduct[key] ?? 0)].join(
-          ';'
-        )
+        [
+          row.productKey,
+          String(row.outUnits),
+          String(row.soldUnits),
+          formatCents(row.revenueCents),
+          String(row.giftUnits),
+          formatCents(row.giftCostCents),
+          formatCents(row.giftValueCents),
+          formatCents(row.soldCostCents),
+          formatCents(row.marginCents),
+        ].join(';')
       );
     }
+    lines.push(
+      [
+        'TOTAL',
+        String(productReport.total.outUnits),
+        String(productReport.total.soldUnits),
+        formatCents(productReport.total.revenueCents),
+        String(productReport.total.giftUnits),
+        formatCents(productReport.total.giftCostCents),
+        formatCents(productReport.total.giftValueCents),
+        formatCents(productReport.total.soldCostCents),
+        formatCents(productReport.total.marginCents),
+      ].join(';')
+    );
+    lines.push('');
+    lines.push(
+      ['Valor total entregat (vendes + regals)', formatCents(productReport.total.grossValueDeliveredCents)].join(';')
+    );
 
     const csv = lines.join('\n');
     return new NextResponse(csv, {
@@ -111,5 +155,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     event: { id: event.id, title: event.title, eventDate: event.event_date ? event.event_date.toISOString() : null },
     sessions: sessionReports,
     total: totalReport,
+    productReport,
   });
 }

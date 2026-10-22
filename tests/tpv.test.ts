@@ -8,6 +8,10 @@ import {
   resolveEventProductPriceCents,
   computeEventSessionReport,
   sumEventReports,
+  resolveGiftValueCents,
+  computeStockBalance,
+  computeProductCostReport,
+  type StockMovementRow,
 } from '../lib/tpv';
 
 test('computeSaleTotals suma les línies en cèntims', () => {
@@ -118,4 +122,117 @@ test('sumEventReports suma els torns en el resum de l\'acte', () => {
   assert.strictEqual(total.cashCents, 1500);
   assert.strictEqual(total.ticketCount, 2);
   assert.strictEqual(total.unitsByProduct.a, 3);
+});
+
+test('computeEventSessionReport calcula els ingressos per producte i exclou els regals', () => {
+  const report = computeEventSessionReport([
+    {
+      totalCents: 1000,
+      voided: false,
+      lines: [
+        { productKey: 'Cava', qty: 2, unitPriceCents: 500, isFree: false },
+        { productKey: 'Cava', qty: 1, unitPriceCents: 500, isFree: true },
+      ],
+    },
+  ]);
+
+  // La venda normal suma als ingressos del producte...
+  assert.strictEqual(report.revenueByProduct.Cava, 1000);
+  // ...però la línia de regal no hi suma res (venda amb regal no suma a ingressos).
+  assert.strictEqual(report.cashCents, 1000);
+});
+
+test('resolveGiftValueCents fa servir el valor indicat si existeix', () => {
+  assert.strictEqual(resolveGiftValueCents(1000, 200, 300), 1000);
+  assert.strictEqual(resolveGiftValueCents(0, 200, 300), 0);
+});
+
+test('resolveGiftValueCents sense valor explícit fa servir el cost', () => {
+  assert.strictEqual(resolveGiftValueCents(null, 200, 300), 200);
+  assert.strictEqual(resolveGiftValueCents(undefined, 200, 300), 200);
+});
+
+test('resolveGiftValueCents sense valor ni cost fa servir el preu', () => {
+  assert.strictEqual(resolveGiftValueCents(null, null, 300), 300);
+});
+
+test('resolveGiftValueCents sense cap dada dona 0', () => {
+  assert.strictEqual(resolveGiftValueCents(null, null, null), 0);
+});
+
+test('computeStockBalance: entrades sumen, sortides/vendes/regals resten', () => {
+  assert.strictEqual(
+    computeStockBalance([
+      { type: 'entrada', qty: 100 },
+      { type: 'salida', qty: 10 },
+      { type: 'venta', qty: 20 },
+      { type: 'regalo', qty: 5 },
+    ]),
+    65
+  );
+});
+
+test('computeProductCostReport: cas de prova de l\'acte "Paella"', () => {
+  // Sortida de 10 unitats d'"Entrepà" (moviment manual, no és venda ni regal).
+  // 20 unitats de "Cava" regalades amb cost de compra de 2 € i sense valor
+  // propi indicat (l'operador va posar explícitament 0 perquè no interessa
+  // valorar-les) -> coste de regalo 40,00 €.
+  // 30 unitats de "Vi" regalades amb valor propi de 10 € i sense cost conegut
+  // -> valor de regalo 300,00 €.
+  const movements: StockMovementRow[] = [
+    { productKey: 'Entrepà', type: 'salida', qty: 10, totalCostCents: 0, totalValueCents: 0 },
+    { productKey: 'Cava', type: 'regalo', qty: 20, totalCostCents: 4000, totalValueCents: 0 },
+    { productKey: 'Vi', type: 'regalo', qty: 30, totalCostCents: 0, totalValueCents: 30000 },
+  ];
+
+  const eventReport = computeEventSessionReport([
+    {
+      totalCents: 0,
+      voided: false,
+      lines: [
+        { productKey: 'Cava', qty: 20, unitPriceCents: 0, isFree: true },
+        { productKey: 'Vi', qty: 30, unitPriceCents: 0, isFree: true },
+      ],
+    },
+  ]);
+
+  const { rows, total } = computeProductCostReport(eventReport, movements);
+
+  const entrepa = rows.find((r) => r.productKey === 'Entrepà')!;
+  assert.strictEqual(entrepa.outUnits, 10);
+
+  const cava = rows.find((r) => r.productKey === 'Cava')!;
+  assert.strictEqual(cava.giftUnits, 20);
+  assert.strictEqual(cava.giftCostCents, 4000); // 40,00 €
+
+  const vi = rows.find((r) => r.productKey === 'Vi')!;
+  assert.strictEqual(vi.giftUnits, 30);
+  assert.strictEqual(vi.giftValueCents, 30000); // 300,00 €
+
+  // Totals coherents de l'acte sencer.
+  assert.strictEqual(total.outUnits, 10);
+  assert.strictEqual(total.giftCostCents, 4000); // 40,00 € de coste de regalo
+  assert.strictEqual(total.giftValueCents, 30000); // 300,00 € de valor de regalo
+  assert.strictEqual(total.revenueCents, 0);
+  assert.strictEqual(total.grossValueDeliveredCents, 30000); // ingressos (0) + valor regals
+});
+
+test('computeProductCostReport calcula el marge com ingressos menys cost del venut', () => {
+  const movements: StockMovementRow[] = [
+    { productKey: 'Cervesa', type: 'venta', qty: 10, totalCostCents: 1000, totalValueCents: 2500 },
+  ];
+  const eventReport = computeEventSessionReport([
+    {
+      totalCents: 2500,
+      voided: false,
+      lines: [{ productKey: 'Cervesa', qty: 10, unitPriceCents: 250, isFree: false }],
+    },
+  ]);
+
+  const { rows } = computeProductCostReport(eventReport, movements);
+  const cervesa = rows.find((r) => r.productKey === 'Cervesa')!;
+  assert.strictEqual(cervesa.soldUnits, 10);
+  assert.strictEqual(cervesa.revenueCents, 2500);
+  assert.strictEqual(cervesa.soldCostCents, 1000);
+  assert.strictEqual(cervesa.marginCents, 1500);
 });

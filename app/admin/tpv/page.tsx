@@ -1,8 +1,10 @@
 import { prisma } from '@/lib/db';
 import { getLocale, getMessages } from '@/lib/i18n';
+import { computeStockBalance, type StockMovementType } from '@/lib/tpv';
 import ProductsAdmin from '@/components/admin/tpv/ProductsAdmin';
 import SessionsReport from '@/components/admin/tpv/SessionsReport';
 import BarEventsAdmin from '@/components/admin/tpv/BarEventsAdmin';
+import StockMovementsAdmin from '@/components/admin/tpv/StockMovementsAdmin';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +21,26 @@ export default async function AdminTpvPage() {
 
   const products = await prisma.tpv_products.findMany({
     orderBy: [{ sort: 'asc' }, { name: 'asc' }],
+  });
+
+  const allMovements = await prisma.tpv_stock_movements.findMany({
+    select: { product_id: true, type: true, qty: true },
+  });
+  const movementsByProduct = new Map<string, Array<{ type: StockMovementType; qty: number }>>();
+  for (const m of allMovements) {
+    const list = movementsByProduct.get(m.product_id) ?? [];
+    list.push({ type: m.type as StockMovementType, qty: m.qty });
+    movementsByProduct.set(m.product_id, list);
+  }
+  const stockByProductId: Record<string, number> = {};
+  for (const p of products) {
+    stockByProductId[p.id] = computeStockBalance(movementsByProduct.get(p.id) ?? []);
+  }
+
+  const recentEvents = await prisma.events.findMany({
+    orderBy: { event_date: 'desc' },
+    take: 100,
+    select: { id: true, title: true },
   });
 
   const sessions = await prisma.cash_sessions.findMany({
@@ -56,9 +78,16 @@ export default async function AdminTpvPage() {
           name: p.name,
           category: p.category,
           priceCents: p.price_cents,
+          costCents: p.cost_cents,
           active: p.active,
           sort: p.sort,
         }))}
+        stockByProductId={stockByProductId}
+      />
+
+      <StockMovementsAdmin
+        products={products.map((p) => ({ id: p.id, name: p.name }))}
+        events={recentEvents}
       />
 
       <BarEventsAdmin
