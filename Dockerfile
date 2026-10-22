@@ -2,8 +2,9 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 COPY . .
+RUN npx prisma generate
 ARG NEXT_PUBLIC_BUILD_ID
 ARG BUILD_TIME
 ENV NEXT_PUBLIC_BUILD_ID=${NEXT_PUBLIC_BUILD_ID}
@@ -17,7 +18,8 @@ WORKDIR /app
 COPY --from=builder --chown=node:node /app/.next ./.next
 COPY --from=builder --chown=node:node /app/public ./public
 COPY --chown=node:node package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --ignore-scripts
+COPY --from=builder --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma
 
 USER node
 
