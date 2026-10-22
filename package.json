@@ -1,6 +1,6 @@
 {
   "name": "avv-can-gorgs2",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Web archivística pública de Can Gorgs II",
   "scripts": {
     "postinstall": "prisma generate",

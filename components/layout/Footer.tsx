@@ -11,13 +11,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <h2 className="font-serif text-lg text-white">
-              Associació de Veïns Can Gorgs II
+              {siteConfig.fullName}
             </h2>
-            {siteConfig.foundedYear && (
-              <p className="mt-2 text-sm text-slate-400">
-                Fundada l&apos;any {siteConfig.foundedYear}.
-              </p>
-            )}
             <p className="mt-2 text-sm text-slate-400">
               Preservant la memòria històrica del barri.
             </p>
@@ -62,7 +57,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 border-t border-slate-700 pt-6 text-xs text-slate-500">
-          © {year} Associació de Veïns Can Gorgs II. Tots els drets reservats.
+          © {year} {siteConfig.fullName}. Tots els drets reservats.
         </div>
       </div>
     </footer>
