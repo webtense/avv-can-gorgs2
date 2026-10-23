@@ -21,6 +21,17 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.7.1',
+    date: '2026-10-23',
+    sections: {
+      features: [],
+      fixes: [
+        'La foto de fons de la portada es carrega correctament sota /avv',
+      ],
+      internal: [],
+    },
+  },
+  {
     version: '1.7.0',
     date: '2026-10-23',
     sections: {
