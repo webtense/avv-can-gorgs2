@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type {
-import { withBasePath } from '@/lib/basePath';
   ArchiveDetailResponse,
   ArchiveItemResponse,
   ArchiveListResponse,
   SearchResultResponse,
 } from '@/app/api/archive/types';
+import { withBasePath } from '@/lib/basePath';
 
 interface UseArchiveListParams {
   page?: number;
