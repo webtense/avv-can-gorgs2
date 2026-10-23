@@ -21,6 +21,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.6.1',
+    date: '2026-10-23',
+    sections: {
+      features: [],
+      fixes: [
+        'La web es serveix correctament sota el prefix /avv',
+      ],
+      internal: [
+        'La imatge de producció inclou next.config.js perquè next start apliqui el basePath',
+      ],
+    },
+  },
+  {
     version: '1.6.0',
     date: '2026-10-23',
     sections: {

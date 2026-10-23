@@ -18,6 +18,7 @@ RUN apk add --no-cache curl openssl
 WORKDIR /app
 COPY --from=builder --chown=node:node /app/.next ./.next
 COPY --from=builder --chown=node:node /app/public ./public
+COPY --from=builder --chown=node:node /app/next.config.js ./next.config.js
 COPY --chown=node:node package*.json ./
 RUN npm ci --omit=dev --ignore-scripts
 COPY --from=builder --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma
