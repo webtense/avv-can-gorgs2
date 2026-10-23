@@ -1,3 +1,4 @@
+import { withBasePath } from '@/lib/basePath';
 'use client';
 
 import Image from 'next/image';
@@ -14,7 +15,7 @@ export default function Home() {
     <>
       <section className="relative overflow-hidden text-white">
         <Image
-          src="/images/torre-den-gorgs-1.jpg"
+          src={withBasePath("/images/torre-den-gorgs-1.jpg")}
           alt={t('home.heroAlt')}
           fill
           priority
