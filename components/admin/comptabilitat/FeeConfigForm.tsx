@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 export default function FeeConfigForm({ initialAmountCents }: { initialAmountCents: number | null }) {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function FeeConfigForm({ initialAmountCents }: { initialAmountCen
     setError(null);
     try {
       const feeAmountCents = value.trim() === '' ? null : Math.round(Number(value.replace(',', '.')) * 100);
-      const res = await fetch('/api/admin/comptabilitat/config', {
+      const res = await fetch(withBasePath('/api/admin/comptabilitat/config'), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ feeAmountCents }),

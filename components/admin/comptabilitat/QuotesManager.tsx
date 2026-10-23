@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 interface Fee {
   id: string;
@@ -32,7 +33,7 @@ export default function QuotesManager() {
     if (period) params.set('period', period);
     if (status) params.set('status', status);
     if (search) params.set('search', search);
-    const res = await fetch(`/api/admin/comptabilitat/quotes?${params.toString()}`);
+    const res = await fetch(withBasePath(`/api/admin/comptabilitat/quotes?${params.toString()}`));
     if (res.ok) {
       const data = await res.json();
       setFees(data.fees);
@@ -48,7 +49,7 @@ export default function QuotesManager() {
     setError(null);
     setMessage(null);
     try {
-      const res = await fetch('/api/admin/comptabilitat/quotes', {
+      const res = await fetch(withBasePath('/api/admin/comptabilitat/quotes'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ period: genPeriod }),
@@ -74,7 +75,7 @@ export default function QuotesManager() {
     );
     if (!method || !['efectiu', 'transferencia', 'altre'].includes(method)) return;
     const receiptNumber = window.prompt(t('admin.comptabilitat.quotes.receiptNumber')) || undefined;
-    const res = await fetch(`/api/admin/comptabilitat/quotes/${id}`, {
+    const res = await fetch(withBasePath(`/api/admin/comptabilitat/quotes/${id}`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'pagar', method, receiptNumber }),
@@ -86,7 +87,7 @@ export default function QuotesManager() {
   async function revert(id: string) {
     const reason = window.prompt(t('admin.comptabilitat.quotes.revertReasonPrompt'));
     if (!reason) return;
-    const res = await fetch(`/api/admin/comptabilitat/quotes/${id}`, {
+    const res = await fetch(withBasePath(`/api/admin/comptabilitat/quotes/${id}`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'revertir', reason }),

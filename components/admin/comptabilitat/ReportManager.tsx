@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 interface Report {
   year: number;
@@ -25,7 +26,7 @@ export default function ReportManager() {
 
   async function load() {
     setError(null);
-    const res = await fetch(`/api/admin/comptabilitat/report?year=${year}&quarter=${quarter}`);
+    const res = await fetch(withBasePath(`/api/admin/comptabilitat/report?year=${year}&quarter=${quarter}`));
     if (!res.ok) {
       setError(t('admin.comptabilitat.report.loadError'));
       return;
@@ -55,7 +56,7 @@ export default function ReportManager() {
           {t('admin.comptabilitat.report.load')}
         </button>
         <a
-          href={`/api/admin/comptabilitat/report?year=${year}&quarter=${quarter}&format=csv`}
+          href={withBasePath(`/api/admin/comptabilitat/report?year=${year}&quarter=${quarter}&format=csv`)}
           className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
         >
           {t('admin.comptabilitat.report.exportCsv')}

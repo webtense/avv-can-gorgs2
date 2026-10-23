@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
 import { formatCents } from '@/lib/tpv';
+import { withBasePath } from '@/lib/basePath';
 
 interface SessionReport {
   sessionId: string;
@@ -53,7 +54,7 @@ export default function BarEventReport({ eventId, onClose }: { eventId: string; 
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/tpv/bar-events/${eventId}/report`)
+    fetch(withBasePath(`/api/tpv/bar-events/${eventId}/report`))
       .then((res) => res.json())
       .then(setData)
       .finally(() => setLoading(false));
@@ -72,7 +73,7 @@ export default function BarEventReport({ eventId, onClose }: { eventId: string; 
         <div className="flex items-center gap-2">
           {data && (
             <a
-              href={`/api/tpv/bar-events/${eventId}/report?format=csv`}
+              href={withBasePath(`/api/tpv/bar-events/${eventId}/report?format=csv`)}
               className="rounded-md border border-slate-300 px-3 py-1 text-xs font-medium"
             >
               {t('admin.tpv.barEvents.exportCsv')}

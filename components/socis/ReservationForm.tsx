@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 interface Props {
   eventId: string;
@@ -23,7 +24,7 @@ export default function ReservationForm({ eventId, defaultName = '', defaultEmai
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch('/api/reservations', {
+      const res = await fetch(withBasePath('/api/reservations'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ eventId, name, email, quantity }),

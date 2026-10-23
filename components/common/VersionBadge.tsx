@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 interface ChangelogEntry {
   version: string;
@@ -27,7 +28,7 @@ export default function VersionBadge({ version }: VersionBadgeProps) {
     let cancelled = false;
     setLoading(true);
 
-    fetch('/api/changelog')
+    fetch(withBasePath('/api/changelog'))
       .then((res) => res.json())
       .then((data: { changelog: ChangelogEntry[] }) => {
         if (!cancelled) setChangelog(data.changelog);

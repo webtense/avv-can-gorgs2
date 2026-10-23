@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
 import type { MailMemberOption } from '@/components/admin/MailSendForm';
+import { withBasePath } from '@/lib/basePath';
 
 interface LogEntry {
   id: string;
@@ -25,7 +26,7 @@ export default function MailHistoryList({ members }: { members: MailMemberOption
     if (memberId) params.set('memberId', memberId);
     if (status) params.set('status', status);
     setLoading(true);
-    fetch(`/api/admin/mail/log?${params.toString()}`)
+    fetch(withBasePath(`/api/admin/mail/log?${params.toString()}`))
       .then((res) => res.json())
       .then((data) => setLogs(data.logs || []))
       .finally(() => setLoading(false));

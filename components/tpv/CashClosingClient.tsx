@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/components/i18n/I18nProvider';
 import { formatCents } from '@/lib/tpv';
+import { withBasePath } from '@/lib/basePath';
 
 export default function CashClosingClient({
   openedAt,
@@ -37,7 +38,7 @@ export default function CashClosingClient({
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch('/api/tpv/session/close', {
+      const res = await fetch(withBasePath('/api/tpv/session/close'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ countedCents }),

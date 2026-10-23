@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 const CHECK_INTERVAL_MS = 30 * 1000;
 
@@ -20,7 +21,7 @@ export default function VersionManager() {
 
     async function checkVersion() {
       try {
-        const res = await fetch('/api/version', { cache: 'no-store' });
+        const res = await fetch(withBasePath('/api/version'), { cache: 'no-store' });
         if (!res.ok) return;
         const data = (await res.json()) as { buildId: string };
 

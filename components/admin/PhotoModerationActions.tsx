@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 export default function PhotoModerationActions({ id, approved }: { id: string; approved: boolean }) {
   const router = useRouter();
@@ -12,7 +13,7 @@ export default function PhotoModerationActions({ id, approved }: { id: string; a
   async function approve() {
     setLoading(true);
     try {
-      await fetch('/api/admin/fotos', {
+      await fetch(withBasePath('/api/admin/fotos'), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id }),
@@ -27,7 +28,7 @@ export default function PhotoModerationActions({ id, approved }: { id: string; a
     if (!confirm(t('admin.fotos.confirmDelete'))) return;
     setLoading(true);
     try {
-      await fetch(`/api/admin/fotos?id=${id}`, { method: 'DELETE' });
+      await fetch(withBasePath(`/api/admin/fotos?id=${id}`), { method: 'DELETE' });
       router.refresh();
     } finally {
       setLoading(false);

@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 interface Props {
   id: string;
@@ -25,7 +26,7 @@ export default function EventFlagsForm({ id, membersOnly, reservationsOpen, capa
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/admin/events', {
+      const res = await fetch(withBasePath('/api/admin/events'), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

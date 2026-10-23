@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
 import { formatCents } from '@/lib/tpv';
+import { withBasePath } from '@/lib/basePath';
 
 interface CartEntry {
   product: { id: string; name: string; priceCents: number };
@@ -62,7 +63,7 @@ export default function PaymentModal({
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch('/api/tpv/sale', {
+      const res = await fetch(withBasePath('/api/tpv/sale'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 interface Props {
   events: { id: string; title: string }[];
@@ -42,7 +43,7 @@ export default function PhotoUploadForm({ events }: Props) {
 
     setLoading(true);
     try {
-      const res = await fetch('/api/socis/fotos', { method: 'POST', body: formData });
+      const res = await fetch(withBasePath('/api/socis/fotos'), { method: 'POST', body: formData });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || t('photoUploadForm.genericError'));

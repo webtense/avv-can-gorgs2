@@ -21,6 +21,25 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.6.0',
+    date: '2026-10-23',
+    sections: {
+      features: [
+        'La web es publica també a webtenseenergy.com/avv',
+      ],
+      fixes: [],
+      internal: [
+        'Suport per prefix de ruta (basePath) /avv a Next.js: totes les crides fetch i enllaços/imatges amb ruta absoluta s\'ajusten per funcionar sota aquest prefix',
+      ],
+      es: {
+        features: [
+          'La web se publica también en webtenseenergy.com/avv',
+        ],
+        fixes: [],
+      },
+    },
+  },
+  {
     version: '1.5.4',
     date: '2026-10-23',
     sections: {
