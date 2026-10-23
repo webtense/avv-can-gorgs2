@@ -36,6 +36,16 @@ export default async function BarriPage() {
       <p className="text-sm text-slate-500">
         {t.moreInfo} <a className="text-primary underline" href="https://www.amb.cat/es/web/territori/espai-public/parcs/punts-interes/detall/-/puntinteres/torre-d-en-gorgs/6886878/11656">AMB</a>.
       </p>
+
+      <div className="overflow-hidden rounded-lg border border-slate-200">
+        <iframe
+          src="https://www.google.com/maps?q=Carrer+de+la+Torre+d%27en+Gorgs+40,+08210+Barbera+del+Valles&output=embed"
+          title={t.mapTitle}
+          loading="lazy"
+          className="h-80 w-full border-0 sm:h-96"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
+      </div>
     </PageShell>
   );
 }

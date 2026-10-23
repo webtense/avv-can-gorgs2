@@ -21,6 +21,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.7.0',
+    date: '2026-10-23',
+    sections: {
+      features: [
+        'Tiquets virtuals amb codi QR per als esdeveniments',
+        'Control d\'accés per a la barra i l\'entrada',
+        'Foto de fons i mapa del barri',
+      ],
+      fixes: [],
+      internal: [],
+    },
+  },
+  {
     version: '1.6.1',
     date: '2026-10-23',
     sections: {

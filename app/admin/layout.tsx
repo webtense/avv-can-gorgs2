@@ -32,6 +32,12 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         <Link href="/admin/tpv" className="text-primary underline">
           {messages.admin.tpv.title}
         </Link>
+        <Link href="/admin/tiquets" className="text-primary underline">
+          {t.tiquets}
+        </Link>
+        <Link href="/tpv/control" className="text-primary underline">
+          {t.control}
+        </Link>
         <Link href="/admin/correu" className="text-primary underline">
           {t.correu}
         </Link>
