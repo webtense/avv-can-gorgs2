@@ -3,5 +3,6 @@ const nextConfig = {
   reactStrictMode: true,
   compress: true,
   poweredByHeader: false,
+  basePath: '/avv',
 };
 module.exports = nextConfig;

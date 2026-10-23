@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useState } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
 import { formatCents } from '@/lib/tpv';
+import { withBasePath } from '@/lib/basePath';
 
 interface SessionRow {
   id: string;
@@ -35,7 +36,7 @@ function SessionSales({ sessionId, onChanged }: { sessionId: string; onChanged: 
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/tpv/sessions/${sessionId}/sales`)
+    fetch(withBasePath(`/api/tpv/sessions/${sessionId}/sales`))
       .then((res) => res.json())
       .then((data) => setSales(data.sales || []))
       .finally(() => setLoading(false));
@@ -43,7 +44,7 @@ function SessionSales({ sessionId, onChanged }: { sessionId: string; onChanged: 
 
   async function voidSale(id: string) {
     if (!window.confirm(t('admin.tpv.voidConfirm'))) return;
-    const res = await fetch(`/api/tpv/sale/${id}/void`, { method: 'POST' });
+    const res = await fetch(withBasePath(`/api/tpv/sale/${id}/void`), { method: 'POST' });
     if (res.ok) {
       setSales((prev) => prev?.map((s) => (s.id === id ? { ...s, voided: true } : s)) ?? null);
       onChanged();

@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/components/i18n/I18nProvider';
 import type { Locale } from '@/lib/i18n';
+import { withBasePath } from '@/lib/basePath';
 
 export default function LanguageSwitcher() {
   const { locale, t } = useI18n();
@@ -15,7 +16,7 @@ export default function LanguageSwitcher() {
     if (next === locale) return;
     setPendingLocale(next);
     try {
-      await fetch('/api/lang', {
+      await fetch(withBasePath('/api/lang'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ locale: next }),

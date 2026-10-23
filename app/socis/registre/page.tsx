@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import PageShell from '@/components/common/PageShell';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 export default function RegistrePage() {
   const { t } = useI18n();
@@ -22,7 +23,7 @@ export default function RegistrePage() {
     setSuccess(null);
     setLoading(true);
     try {
-      const res = await fetch('/api/socis/registre', {
+      const res = await fetch(withBasePath('/api/socis/registre'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, phone, gdprConsent }),

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 export default function MemberActions({
   id,
@@ -22,7 +23,7 @@ export default function MemberActions({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/admin/socis', {
+      const res = await fetch(withBasePath('/api/admin/socis'), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, action }),

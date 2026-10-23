@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db';
+import { withBasePath } from '@/lib/basePath';
 import PageShell from '@/components/common/PageShell';
 import { getLocale, getMessages } from '@/lib/i18n';
 
@@ -30,7 +31,7 @@ export default async function FotosPage() {
           <figure key={photo.id} className="overflow-hidden rounded-md border border-slate-200">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`/api/fotos/${photo.id}`}
+              src={withBasePath(`/api/fotos/${photo.id}`)}
               alt={photo.caption || photo.events?.title || t.altFallback}
               className="h-40 w-full object-cover"
               loading="lazy"

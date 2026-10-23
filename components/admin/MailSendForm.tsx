@@ -3,6 +3,7 @@
 import { useState, ChangeEvent } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
 import type { MailTemplate } from '@/components/admin/MailTemplatesManager';
+import { withBasePath } from '@/lib/basePath';
 
 export interface MailMemberOption {
   id: string;
@@ -75,7 +76,7 @@ export default function MailSendForm({
     }
     setPreviewLoading(true);
     try {
-      const res = await fetch('/api/admin/mail/send', {
+      const res = await fetch(withBasePath('/api/admin/mail/send'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(buildPayload('preview')),
@@ -104,7 +105,7 @@ export default function MailSendForm({
     try {
       const form = new FormData();
       form.append('file', file);
-      const res = await fetch('/api/admin/mail/attachments', { method: 'POST', body: form });
+      const res = await fetch(withBasePath('/api/admin/mail/attachments'), { method: 'POST', body: form });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error || t('admin.mail.send.sendError'));
@@ -122,7 +123,7 @@ export default function MailSendForm({
     setSending(true);
     setError(null);
     try {
-      const res = await fetch('/api/admin/mail/send', {
+      const res = await fetch(withBasePath('/api/admin/mail/send'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(buildPayload('confirm')),

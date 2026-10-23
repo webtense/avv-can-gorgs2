@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useI18n } from '@/components/i18n/I18nProvider';
 import { formatCents, QUICK_CASH_AMOUNTS_CENTS } from '@/lib/tpv';
 import PaymentModal from './PaymentModal';
@@ -122,9 +123,9 @@ export default function TpvClient({
               <p className="text-sm font-medium text-primary">{t('tpv.sale.activeEvent')}: {eventTitle}</p>
             )}
           </div>
-          <a href="/tpv/caixa" className="text-sm text-primary underline">
+          <Link href="/tpv/caixa" className="text-sm text-primary underline">
             {t('tpv.closing.title')}
-          </a>
+          </Link>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {products.map((product) => (

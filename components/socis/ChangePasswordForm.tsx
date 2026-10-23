@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 export default function ChangePasswordForm() {
   const { t } = useI18n();
@@ -25,7 +26,7 @@ export default function ChangePasswordForm() {
 
     setLoading(true);
     try {
-      const res = await fetch('/api/socis/contrasenya', {
+      const res = await fetch(withBasePath('/api/socis/contrasenya'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),

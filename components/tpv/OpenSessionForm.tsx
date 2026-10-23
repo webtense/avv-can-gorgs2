@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 interface BarEventOption {
   id: string;
@@ -21,7 +22,7 @@ export default function OpenSessionForm() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/tpv/bar-events/active')
+    fetch(withBasePath('/api/tpv/bar-events/active'))
       .then((res) => (res.ok ? res.json() : { events: [] }))
       .then((data) => setBarEvents(data.events || []))
       .catch(() => setBarEvents([]));
@@ -40,7 +41,7 @@ export default function OpenSessionForm() {
 
     setLoading(true);
     try {
-      const res = await fetch('/api/tpv/session', {
+      const res = await fetch(withBasePath('/api/tpv/session'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ openingFloatCents, eventId: eventId || null }),

@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 export interface MailTemplate {
   id: string;
@@ -50,7 +51,7 @@ export default function MailTemplatesManager({
     setError(null);
     try {
       const isNew = editingId === 'new';
-      const url = isNew ? '/api/admin/mail/templates' : `/api/admin/mail/templates/${editingId}`;
+      const url = withBasePath(isNew ? '/api/admin/mail/templates' : `/api/admin/mail/templates/${editingId}`);
       const method = isNew ? 'POST' : 'PATCH';
       const res = await fetch(url, {
         method,
@@ -76,7 +77,7 @@ export default function MailTemplatesManager({
 
   async function handleDelete(id: string) {
     if (!window.confirm(t('admin.mail.templates.confirmDelete'))) return;
-    const res = await fetch(`/api/admin/mail/templates/${id}`, { method: 'DELETE' });
+    const res = await fetch(withBasePath(`/api/admin/mail/templates/${id}`), { method: 'DELETE' });
     if (res.ok) {
       onChange(templates.filter((tpl) => tpl.id !== id));
     }

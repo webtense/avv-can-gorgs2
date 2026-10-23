@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
 import BarEventReport from './BarEventReport';
+import { withBasePath } from '@/lib/basePath';
 
 interface Product {
   id: string;
@@ -43,7 +44,7 @@ export default function BarEventsAdmin({ products }: { products: Product[] }) {
 
   function reloadBarEvents() {
     setLoadingList(true);
-    fetch('/api/tpv/bar-events')
+    fetch(withBasePath('/api/tpv/bar-events'))
       .then((res) => (res.ok ? res.json() : { events: [] }))
       .then((data) => setBarEvents(data.events || []))
       .finally(() => setLoadingList(false));
@@ -57,7 +58,7 @@ export default function BarEventsAdmin({ products }: { products: Product[] }) {
         setSearchResults([]);
         return;
       }
-      fetch(`/api/tpv/bar-events/search?q=${encodeURIComponent(query)}`)
+      fetch(withBasePath(`/api/tpv/bar-events/search?q=${encodeURIComponent(query)}`))
         .then((res) => (res.ok ? res.json() : { events: [] }))
         .then((data) => setSearchResults(data.events || []));
     }, 300);
@@ -82,7 +83,7 @@ export default function BarEventsAdmin({ products }: { products: Product[] }) {
 
     setSaving(true);
     try {
-      const res = await fetch('/api/tpv/bar-events', {
+      const res = await fetch(withBasePath('/api/tpv/bar-events'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 interface InvoiceRow {
   id: string;
@@ -36,7 +37,7 @@ export default function InvoicesReceivedManager() {
     const params = new URLSearchParams();
     if (status) params.set('status', status);
     if (supplier) params.set('supplier', supplier);
-    const res = await fetch(`/api/admin/comptabilitat/invoices-received?${params.toString()}`);
+    const res = await fetch(withBasePath(`/api/admin/comptabilitat/invoices-received?${params.toString()}`));
     if (res.ok) {
       const data = await res.json();
       setInvoices(data.invoices);
@@ -71,7 +72,7 @@ export default function InvoicesReceivedManager() {
       form.set('vatRatePercent', String(rate));
       form.set('file', file);
 
-      const res = await fetch('/api/admin/comptabilitat/invoices-received', { method: 'POST', body: form });
+      const res = await fetch(withBasePath('/api/admin/comptabilitat/invoices-received'), { method: 'POST', body: form });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error || t('admin.comptabilitat.invoicesReceived.form.saveError'));
@@ -95,7 +96,7 @@ export default function InvoicesReceivedManager() {
   async function markPaid(id: string) {
     const method = window.prompt('efectiu / transferencia / altre', 'transferencia');
     if (!method || !['efectiu', 'transferencia', 'altre'].includes(method)) return;
-    const res = await fetch(`/api/admin/comptabilitat/invoices-received/${id}`, {
+    const res = await fetch(withBasePath(`/api/admin/comptabilitat/invoices-received/${id}`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'pagar', method }),
@@ -219,7 +220,7 @@ export default function InvoicesReceivedManager() {
                 </td>
                 <td className="py-2 pr-4 flex gap-2">
                   <a
-                    href={`/api/admin/comptabilitat/invoices-received/${inv.id}/file`}
+                    href={withBasePath(`/api/admin/comptabilitat/invoices-received/${inv.id}/file`)}
                     target="_blank"
                     rel="noreferrer"
                     className="rounded-md border border-slate-300 px-2 py-1 text-xs"

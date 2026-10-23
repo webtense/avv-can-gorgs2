@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 interface Product {
   id: string;
@@ -53,7 +54,7 @@ function ProductRow({
         return;
       }
 
-      const res = await fetch(`/api/tpv/products/${product.id}`, {
+      const res = await fetch(withBasePath(`/api/tpv/products/${product.id}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -86,7 +87,7 @@ function ProductRow({
 
   async function remove() {
     if (!window.confirm(t('admin.tpv.delete') + '?')) return;
-    const res = await fetch(`/api/tpv/products/${product.id}`, { method: 'DELETE' });
+    const res = await fetch(withBasePath(`/api/tpv/products/${product.id}`), { method: 'DELETE' });
     if (res.ok) onDeleted(product.id);
   }
 
@@ -181,7 +182,7 @@ export default function ProductsAdmin({
     if (!newName.trim()) return;
     setCreating(true);
     try {
-      const res = await fetch('/api/tpv/products', {
+      const res = await fetch(withBasePath('/api/tpv/products'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newName.trim() }),

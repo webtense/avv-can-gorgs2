@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 interface InvoiceRow {
   id: string;
@@ -37,7 +38,7 @@ export default function InvoicesIssuedManager() {
   const [message, setMessage] = useState<string | null>(null);
 
   async function load() {
-    const res = await fetch('/api/admin/comptabilitat/invoices-issued');
+    const res = await fetch(withBasePath('/api/admin/comptabilitat/invoices-issued'));
     if (res.ok) {
       const data = await res.json();
       setInvoices(data.invoices);
@@ -69,7 +70,7 @@ export default function InvoicesIssuedManager() {
           vatRatePercent: Number(l.vatRatePercent),
         })),
       };
-      const res = await fetch('/api/admin/comptabilitat/invoices-issued', {
+      const res = await fetch(withBasePath('/api/admin/comptabilitat/invoices-issued'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -94,7 +95,7 @@ export default function InvoicesIssuedManager() {
 
   async function cancelInvoice(id: string) {
     if (!window.confirm(t('admin.comptabilitat.invoicesIssued.cancelConfirm'))) return;
-    const res = await fetch(`/api/admin/comptabilitat/invoices-issued/${id}`, {
+    const res = await fetch(withBasePath(`/api/admin/comptabilitat/invoices-issued/${id}`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'anular' }),
@@ -255,7 +256,7 @@ export default function InvoicesIssuedManager() {
                 </td>
                 <td className="py-2 pr-4 flex gap-2">
                   <a
-                    href={`/api/admin/comptabilitat/invoices-issued/${inv.id}/pdf`}
+                    href={withBasePath(`/api/admin/comptabilitat/invoices-issued/${inv.id}/pdf`)}
                     target="_blank"
                     rel="noreferrer"
                     className="rounded-md border border-slate-300 px-2 py-1 text-xs"

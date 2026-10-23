@@ -6,6 +6,7 @@ import VersionBadge from '@/components/common/VersionBadge';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import { useI18n } from '@/components/i18n/I18nProvider';
 import { navigation } from '@/lib/site-config';
+import { withBasePath } from '@/lib/basePath';
 
 
 interface HeaderProps {
@@ -18,7 +19,7 @@ export default function Header({ version = '0.6.0-BETA' }: HeaderProps) {
   const [member, setMember] = useState<{ name: string; admin: boolean } | null>(null);
 
   useEffect(() => {
-    fetch('/api/socis/me', { cache: 'no-store' })
+    fetch(withBasePath('/api/socis/me'), { cache: 'no-store' })
       .then((r) => r.json())
       .then((d) => setMember(d.member ?? null))
       .catch(() => setMember(null));
@@ -42,7 +43,7 @@ export default function Header({ version = '0.6.0-BETA' }: HeaderProps) {
             className="flex shrink-0 items-center gap-2 font-serif text-lg font-semibold text-primary"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo-avv-can-gorgs-ii.png" alt="AVV Can Gorgs II" className="h-10 w-auto" />
+            <img src={withBasePath('/images/logo-avv-can-gorgs-ii.png')} alt="AVV Can Gorgs II" className="h-10 w-auto" />
           </Link>
 
           <nav

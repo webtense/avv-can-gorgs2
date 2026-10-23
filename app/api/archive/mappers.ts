@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { withBasePath } from '@/lib/basePath'
 import type { ArchiveItemResponse } from './types'
 
 type EventWithRelations = {
@@ -76,7 +77,7 @@ export function mapPhoto(
     title: photo.title,
     description: photo.description ?? undefined,
     date: photo.taken_year ? String(photo.taken_year) : undefined,
-    thumbnailUrl: photo.thumbnail_path ?? undefined,
+    thumbnailUrl: photo.thumbnail_path ? withBasePath(photo.thumbnail_path) : undefined,
     tags
   }
 }

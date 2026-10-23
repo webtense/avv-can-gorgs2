@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useI18n } from '@/components/i18n/I18nProvider';
+import { withBasePath } from '@/lib/basePath';
 
 interface Product {
   id: string;
@@ -46,7 +47,7 @@ export default function StockMovementsAdmin({
     }
     setSaving(true);
     try {
-      const res = await fetch('/api/tpv/stock-movements', {
+      const res = await fetch(withBasePath('/api/tpv/stock-movements'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type {
+import { withBasePath } from '@/lib/basePath';
   ArchiveDetailResponse,
   ArchiveItemResponse,
   ArchiveListResponse,
@@ -59,7 +60,7 @@ export function useArchiveList(params: UseArchiveListParams): UseArchiveListResu
 
     const qs = buildQuery({ page, limit, search, type, tag });
 
-    fetch(`/api/archive${qs}`)
+    fetch(withBasePath(`/api/archive${qs}`))
       .then(async (res) => {
         if (!res.ok) {
           throw new Error(`Error ${res.status} al cargar el archivo`);
@@ -118,7 +119,7 @@ export function useArchiveDetail(id: string | undefined): UseArchiveDetailResult
     setError(null);
     setNotFound(false);
 
-    fetch(`/api/archive/${id}`)
+    fetch(withBasePath(`/api/archive/${id}`))
       .then(async (res) => {
         if (res.status === 404) {
           if (!cancelled) setNotFound(true);
@@ -194,7 +195,7 @@ export function useArchiveSearch(): UseArchiveSearchResult {
         limit: options?.limit,
       });
 
-      fetch(`/api/search${qs}`)
+      fetch(withBasePath(`/api/search${qs}`))
         .then(async (res) => {
           if (!res.ok) {
             throw new Error(`Error ${res.status} al buscar`);
