@@ -16,7 +16,9 @@ interface HeaderProps {
 export default function Header({ version = '0.6.0-BETA' }: HeaderProps) {
   const [open, setOpen] = useState(false);
   const { t } = useI18n();
-  const [member, setMember] = useState<{ name: string; admin: boolean } | null>(null);
+  const [member, setMember] = useState<{ name: string; admin: boolean; tpvOperator: boolean } | null>(
+    null
+  );
 
   useEffect(() => {
     fetch(withBasePath('/api/socis/me'), { cache: 'no-store' })
@@ -28,6 +30,11 @@ export default function Header({ version = '0.6.0-BETA' }: HeaderProps) {
   const authLink = member ? (
     <>
       <Link href="/socis" className="text-sm font-medium text-primary hover:underline">{t('common.header.memberArea')}</Link>
+      {member.tpvOperator && (
+        <Link href="/tpv" className="text-sm font-medium text-primary hover:underline">
+          {t('admin.tpv.title')}
+        </Link>
+      )}
       <Link href="/socis/sortir" className="text-sm font-medium text-slate-600 hover:text-primary">{t('common.header.logout')}</Link>
     </>
   ) : (
