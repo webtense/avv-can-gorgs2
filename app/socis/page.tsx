@@ -124,6 +124,15 @@ export default async function SocisPage() {
         {reservations.map((r) => (
           <li key={r.id} className="text-sm">
             {r.events.title} — {r.quantity} {r.quantity === 1 ? t.personSingular : t.personPlural}
+            {' · '}
+            <Link href={`/tiquet/${r.ticket_code}`} className="text-primary underline">
+              {t.viewTicket}
+            </Link>
+            {r.checked_in_at && (
+              <span className="ml-2 rounded bg-slate-200 px-2 py-0.5 text-xs text-slate-600">
+                {t.ticketUsed}
+              </span>
+            )}
           </li>
         ))}
       </ul>

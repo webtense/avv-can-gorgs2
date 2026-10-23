@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import Link from 'next/link';
 import { useI18n } from '@/components/i18n/I18nProvider';
 import { withBasePath } from '@/lib/basePath';
 
@@ -16,7 +17,9 @@ export default function ReservationForm({ eventId, defaultName = '', defaultEmai
   const [email, setEmail] = useState(defaultEmail);
   const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [ticket, setTicket] = useState<{ code: string; mailConfigured: boolean; mailSent: boolean } | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
@@ -34,7 +37,11 @@ export default function ReservationForm({ eventId, defaultName = '', defaultEmai
         setError(data.error || t('reservationForm.genericError'));
         return;
       }
-      setSuccess(true);
+      setTicket({
+        code: data.ticketCode,
+        mailConfigured: Boolean(data.mailConfigured),
+        mailSent: Boolean(data.mailSent),
+      });
     } catch {
       setError(t('reservationForm.connectionError'));
     } finally {
@@ -42,11 +49,21 @@ export default function ReservationForm({ eventId, defaultName = '', defaultEmai
     }
   }
 
-  if (success) {
+  if (ticket) {
     return (
-      <p role="status" className="mt-2 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-        {t('reservationForm.confirmed')}
-      </p>
+      <div role="status" className="mt-2 space-y-1 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <p>{t('reservationForm.confirmed')}</p>
+        <p>
+          {ticket.mailConfigured && ticket.mailSent
+            ? t('reservationForm.mailSent')
+            : t('reservationForm.mailNotConfigured')}
+        </p>
+        <p>
+          <Link href={`/tiquet/${ticket.code}`} className="font-medium underline">
+            {t('reservationForm.viewTicket')}
+          </Link>
+        </p>
+      </div>
     );
   }
 
