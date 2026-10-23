@@ -1,5 +1,6 @@
-import { withBasePath } from '@/lib/basePath';
 'use client';
+
+import { withBasePath } from '@/lib/basePath';
 
 import Image from 'next/image';
 import Link from 'next/link';
