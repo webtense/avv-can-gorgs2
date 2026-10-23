@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import ArchiveList from '@/components/archive/ArchiveList';
 import { useArchiveList } from '@/hooks/useArchive';
@@ -11,8 +12,23 @@ export default function Home() {
 
   return (
     <>
-      <section className="bg-gradient-to-b from-primary to-primary-dark text-white">
-        <div className="mx-auto max-w-8xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+      <section className="relative overflow-hidden text-white">
+        <Image
+          src="/images/torre-den-gorgs-1.jpg"
+          alt={t('home.heroAlt')}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.2))',
+          }}
+          aria-hidden="true"
+        />
+        <div className="relative mx-auto max-w-8xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
           <div className="max-w-2xl">
             <h1 className="font-serif text-3xl font-bold leading-tight sm:text-5xl">
               {t('home.title')}
@@ -35,6 +51,7 @@ export default function Home() {
               </Link>
             </div>
           </div>
+          <p className="relative mt-6 text-xs text-white/70">{t('home.heroCredit')}</p>
         </div>
       </section>
 
